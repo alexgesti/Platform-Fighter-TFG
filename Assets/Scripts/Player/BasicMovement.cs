@@ -16,8 +16,8 @@ public class BasicMovement : MonoBehaviour
     public float speedShortHop;
     public float speedFullHop;
     [HideInInspector] public float verticalSpeed;
-    float jbCounter, jfCounter, sTop;
-    public float jbCounterMax, jfCounterMax;
+    float jFMFSTFHCounter, jFMFSJCounter, sTop;
+    public float jumpFramesMaxForSwitchToFullHop, jumpFramesMaxForStartJump;
     float gravity;
     [HideInInspector] public bool isJumping, isInTheAirUp;
     bool dontJump;
@@ -159,18 +159,18 @@ public class BasicMovement : MonoBehaviour
         {
             if (isJumping && ecb.isGrounded)
             {
-                jbCounter++;
+                jFMFSTFHCounter++;
             }
 
-            if (jbCounter > 0) jfCounter++;
+            if (jFMFSTFHCounter > 0) jFMFSJCounter++;
 
-            if (jfCounter >= jfCounterMax)
+            if (jFMFSJCounter >= jumpFramesMaxForStartJump)
             {
-                if (jbCounter >= jbCounterMax && ecb.isGrounded && verticalSpeed == 0) // Full Jump
+                if (jFMFSTFHCounter >= jumpFramesMaxForSwitchToFullHop && ecb.isGrounded && verticalSpeed == 0) // Full Jump
                 {
                     sTop = speedFullHop;
                 }
-                else if (jbCounter < jbCounterMax && ecb.isGrounded && verticalSpeed == 0) // Short Jump
+                else if (jFMFSTFHCounter < jumpFramesMaxForSwitchToFullHop && ecb.isGrounded && verticalSpeed == 0) // Short Jump
                 {
                     sTop = speedShortHop;
                 }
@@ -204,10 +204,10 @@ public class BasicMovement : MonoBehaviour
             djOneTime = false;
             dontJump = false;
 
-            if (jfCounter >= jfCounterMax)
+            if (jFMFSJCounter >= jumpFramesMaxForStartJump)
             {
-                jbCounter = 0;
-                jfCounter = 0;
+                jFMFSTFHCounter = 0;
+                jFMFSJCounter = 0;
                 if (isJumping)
                 {
                     isJumping = false;
