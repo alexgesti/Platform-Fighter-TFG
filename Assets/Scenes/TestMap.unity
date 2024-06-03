@@ -2534,6 +2534,10 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
+      propertyPath: joystickChangeThreshold
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
       propertyPath: jumpFramesMaxForStartJump
       value: 9
       objectReference: {fileID: 0}

@@ -43,13 +43,11 @@ public class BasicMovement : MonoBehaviour
 
     [Header("Tapping")]
     public float joystickThresholdMin;
-    public float joystickThresholdMax; 
+    public float joystickThresholdMax;
+    float framesHeld;
+    bool isRunning, wasWalking;
     public float requiredStickTimeX, requiredStickSpeedY;
     float stickExitTimeX, resultStickSpeedX, stickExitTimeY, resultStickSpeedY;
-
-    // test
-    float Rcounter;
-    bool isRunning;
 
     [HideInInspector] public EnvironmentCollisionBox ecb;
 
@@ -85,37 +83,43 @@ public class BasicMovement : MonoBehaviour
     void Move() // No acaba de funcionar cuando el jugador coge de andar (al max) y pasa al correr
                 // (parece que debería de detectar el frame medio todo el rato pero hay frames que se salta)
     {
-
         Debug.Log(Axis.x);
 
         //// Movement Horizontal (Basic) + Tapping. Semi resuelto, hay aún hay que ajustar un poco para que acabe de funcionar.
         if (Mathf.Abs(Axis.x) > joystickThresholdMin)
         {
-            if (!isRunning) Rcounter++;
+            if (!isRunning) framesHeld++;
+
             //if (stickExitTimeX == 0) stickExitTimeX = Time.time;
 
             if (Mathf.Abs(Axis.x) >= joystickThresholdMax)
             {
-                Debug.Log("Frames: " + Rcounter);
-
-                if (Rcounter <= requiredStickTimeX) isRunning = true;
+                if (framesHeld <= requiredStickTimeX) isRunning = true;
                 else isRunning = false;
 
                 if (isRunning) speed = runSpeed;
-                else speed = walkSpeed;
-                //if (resultStickSpeedX == 0) resultStickSpeedX = Mathf.Abs((joystickThresholdMax - joystickThresholdMin) / (Time.time - stickExitTimeX));
-                //if (requiredStickSpeedX <= resultStickSpeedX) speed = runSpeed;
-                //else speed = walkSpeed;
+                else
+                {
+                    speed = walkSpeed;
+                    wasWalking = true;
+                }
             }
-            else speed = walkSpeed;
+            else
+            {
+                speed = walkSpeed;
+            }
         }
         else
         {
-            //stickExitTimeX = 0;
             speed = 0;
             isRunning = false;
-            Rcounter = 0;
-            //resultStickSpeedX = 0;
+            framesHeld = 0;
+        }
+
+        if (Mathf.Abs(Axis.x) < joystickThresholdMax && wasWalking) // Funciona solo para umbral maximo, menor no acaba de funcionar. Revisar.
+        {
+            framesHeld = 0;
+            wasWalking = false;
         }
 
         // Not falling when Walking
