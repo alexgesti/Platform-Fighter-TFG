@@ -2531,7 +2531,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
       propertyPath: requiredStickTimeX
-      value: 8
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
       propertyPath: joystickChangeThreshold

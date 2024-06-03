@@ -44,10 +44,10 @@ public class BasicMovement : MonoBehaviour
     [Header("Tapping")]
     public float joystickThresholdMin;
     public float joystickThresholdMax;
-    float framesHeld;
-    bool isRunning, wasWalking;
+    float framesHeld, prevThreshold;
+    bool isRunning;
     public float requiredStickTimeX, requiredStickSpeedY;
-    float stickExitTimeX, resultStickSpeedX, stickExitTimeY, resultStickSpeedY;
+    float stickExitTimeY, resultStickSpeedY;
 
     [HideInInspector] public EnvironmentCollisionBox ecb;
 
@@ -80,17 +80,14 @@ public class BasicMovement : MonoBehaviour
         Axis = dir;
     }
 
-    void Move() // No acaba de funcionar cuando el jugador coge de andar (al max) y pasa al correr
-                // (parece que debería de detectar el frame medio todo el rato pero hay frames que se salta)
+    void Move()
     {
-        Debug.Log(Axis.x);
+        Debug.Log("Axis: " + Axis.x);
 
-        //// Movement Horizontal (Basic) + Tapping. Semi resuelto, hay aún hay que ajustar un poco para que acabe de funcionar.
+        //// Movement Horizontal (Basic) + Tapping.
         if (Mathf.Abs(Axis.x) > joystickThresholdMin)
         {
             if (!isRunning) framesHeld++;
-
-            //if (stickExitTimeX == 0) stickExitTimeX = Time.time;
 
             if (Mathf.Abs(Axis.x) >= joystickThresholdMax)
             {
@@ -98,10 +95,9 @@ public class BasicMovement : MonoBehaviour
                 else isRunning = false;
 
                 if (isRunning) speed = runSpeed;
-                else
+                else 
                 {
                     speed = walkSpeed;
-                    wasWalking = true;
                 }
             }
             else
@@ -116,11 +112,12 @@ public class BasicMovement : MonoBehaviour
             framesHeld = 0;
         }
 
-        if (Mathf.Abs(Axis.x) < joystickThresholdMax && wasWalking) // Funciona solo para umbral maximo, menor no acaba de funcionar. Revisar.
+        if ((prevThreshold >= 0 && Axis.x < 0 || prevThreshold <= 0 && Axis.x > 0)) // Corrector para cambio de lado (reset a la variable contador)
         {
             framesHeld = 0;
-            wasWalking = false;
         }
+
+        prevThreshold = Axis.x;
 
         // Not falling when Walking
         //if (cantFall && speed == walkSpeed && ecb.isGrounded) speed = 0;
