@@ -49,6 +49,15 @@ public class BasicMovement : MonoBehaviour
     public float requiredStickTimeX, requiredStickSpeedY;
     float stickExitTimeY, resultStickSpeedY;
 
+    [Header("HorizontalMovementValues")]
+    public float tractionValue;
+    bool tractionBool;
+    float tractionAxis;
+    // Hacer dash
+
+    //Movement
+    Vector3 movement;
+
     [HideInInspector] public EnvironmentCollisionBox ecb;
 
     void Start()
@@ -82,10 +91,8 @@ public class BasicMovement : MonoBehaviour
 
     void Move()
     {
-        Debug.Log("Axis: " + Axis.x);
-
         //// Movement Horizontal (Basic) + Tapping.
-        if (Mathf.Abs(Axis.x) > joystickThresholdMin)
+        if (Mathf.Abs(Axis.x) > joystickThresholdMin && !tractionBool)
         {
             if (!isRunning) framesHeld++;
 
@@ -107,7 +114,19 @@ public class BasicMovement : MonoBehaviour
         }
         else
         {
-            speed = 0;
+            if (isRunning) tractionBool = true;
+            else if (speed == walkSpeed) speed = 0;
+
+            if (speed > 0 && tractionBool)
+            {
+                speed -= tractionValue * Time.deltaTime;
+            }
+            else if (speed <= 0 && tractionBool)
+            {
+                speed = 0;
+                tractionBool = false;
+            }
+
             isRunning = false;
             framesHeld = 0;
         }
@@ -262,7 +281,20 @@ public class BasicMovement : MonoBehaviour
         Move();
         Jump();
 
-        Vector3 movement = new Vector3(Axis.x * speed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
+        if (!tractionBool) // Hay que acabar de trabajar el tema del axis. Posiblemente poniendo un entero y solo cambiando el sentido del axis servirá. (algo hecho con anterioridad).
+        {
+            tractionAxis = Axis.x;
+            movement = new Vector3(Axis.x * speed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
+        }
+        else if (tractionBool && ecb.isGrounded)
+        {
+            movement = new Vector3(tractionAxis * speed * Time.deltaTime, 0, 0);
+            
+        }
+
+        Debug.Log(tractionBool);
+        Debug.Log("Speed: " + speed);
+        Debug.Log("Axis: " + tractionAxis);
 
         //Debug.Log("Stick speed: " + resultStickSpeed + " m/s");
         //Debug.Log("Axis X: " + Axis.x);
