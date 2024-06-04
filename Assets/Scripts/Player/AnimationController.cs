@@ -27,6 +27,8 @@ public class AnimationController : MonoBehaviour
         {
             anim.SetBool("isWalk", false);
             anim.SetBool("isRun", true);
+            anim.SetBool("isTraction", false);
+            anim.SetBool("isDirectionChanged", false);
         }
         else if (player.speed == player.walkSpeed && player.ecb.isGrounded) // Walk
         {
@@ -37,21 +39,39 @@ public class AnimationController : MonoBehaviour
             speedW = Mathf.Abs(player.Axis.x) * 3;
             anim.SetFloat("speedW", speedW);
         }
-        else if (player.speed == 0 && player.ecb.isGrounded) // Idle after Run
+        else if (player.speed == 0 && player.ecb.isGrounded && !player.tractionBool) // Idle after Run -> Apaga igualmente a isRun y isWalk
         {
             anim.SetBool("isWalk", false);
             anim.SetBool("isRun", false);
+            anim.SetBool("isTraction", false);
+            anim.SetBool("isDirectionChanged", false);
         }
         else if (player.verticalSpeed > 0) // Jump
         {
             anim.SetBool("isJump", true);
             anim.SetBool("isWalk", false);
             anim.SetBool("isRun", false);
+            anim.SetBool("isTraction", false);
+            anim.SetBool("isDirectionChanged", false);
         }
         else if (player.verticalSpeed < 0 && !player.ecb.isGrounded) // Fall 
         {
             anim.SetBool("isJump", false);
             anim.SetBool("isFall", true);
+        }
+        else if (player.tractionBool && player.isChangingDirTraction) // Change direction (traction)
+        {
+            anim.SetBool("isTraction", false);
+            anim.SetBool("isDirectionChanged", true);
+            anim.SetBool("isJump", false);
+            anim.SetBool("isRun", true);
+        }
+        else if (player.tractionBool && !player.isChangingDirTraction) // Traction stop
+        {
+            anim.SetBool("isTraction", true);
+            anim.SetBool("isDirectionChanged", false);
+            anim.SetBool("isJump", false);
+            anim.SetBool("isRun", false);
         }
 
         if (player.ecb.isGrounded) // Idle after Fall

@@ -19,6 +19,7 @@ public class BasicMovement : MonoBehaviour
     float jFMFSTFHCounter, jFMFSJCounter, sTop;
     public float jumpFramesMaxForSwitchToFullHop, jumpFramesMaxForStartJump;
     float gravity;
+    public float maxGravity;
     [HideInInspector] public bool isJumping, isInTheAirUp;
     bool dontJump;
 
@@ -39,9 +40,9 @@ public class BasicMovement : MonoBehaviour
     [Header("RaycastLedge")]
     public Vector3 directionS;
     public float maxDistanceS;
-    bool cantFall;
 
     [Header("Tapping")]
+    float finalspeed;
     public float joystickThresholdMin;
     public float joystickThresholdMax;
     float framesHeld, prevThreshold;
@@ -51,12 +52,9 @@ public class BasicMovement : MonoBehaviour
 
     [Header("HorizontalMovementValues")]
     public float tractionValue;
-    bool tractionBool;
-    float tractionAxis;
+    [HideInInspector] public bool tractionBool, isChangingDirTraction;
+    float tractionAxis, framesForTraction;
     // Hacer dash
-
-    //Movement
-    Vector3 movement;
 
     [HideInInspector] public EnvironmentCollisionBox ecb;
 
@@ -75,7 +73,6 @@ public class BasicMovement : MonoBehaviour
      
     private void Update()
     {
-        StopOnLedge();
         Movement();
     }
 
@@ -116,15 +113,21 @@ public class BasicMovement : MonoBehaviour
         {
             if (isRunning) tractionBool = true;
             else if (speed == walkSpeed) speed = 0;
-
+            
             if (speed > 0 && tractionBool)
             {
-                speed -= tractionValue * Time.deltaTime;
+                speed -= tractionValue;
             }
             else if (speed <= 0 && tractionBool)
             {
                 speed = 0;
-                tractionBool = false;
+                framesForTraction++;
+                if (framesForTraction >= 3)
+                {
+                    tractionBool = false;
+                    isChangingDirTraction = false;
+                    framesForTraction = 0;
+                }
             }
 
             isRunning = false;
@@ -134,13 +137,17 @@ public class BasicMovement : MonoBehaviour
         if ((prevThreshold >= 0 && Axis.x < 0 || prevThreshold <= 0 && Axis.x > 0)) // Corrector para cambio de lado (reset a la variable contador)
         {
             framesHeld = 0;
+            if (isRunning)
+            {
+                tractionBool = true;
+                isChangingDirTraction = true;
+            }
         }
 
         prevThreshold = Axis.x;
 
-        // Not falling when Walking
-        //if (cantFall && speed == walkSpeed && ecb.isGrounded) speed = 0;
-        //else if (cantFall && (speed == runSpeed || !ecb.isGrounded)) cantFall = false;
+        // Not falling when traction (stopping)
+        StopOnLedge();
 
         // Stop when hit a wall
         if (ecb.isCollidingW && ecb.isRaycastHitW) // Revisar
@@ -236,7 +243,11 @@ public class BasicMovement : MonoBehaviour
         }
 
         // Gravity/Fall
-        if (!ecb.isGrounded) gravity += weight * 9.81f * Time.deltaTime; 
+        if (!ecb.isGrounded)
+        {
+            gravity += weight * 9.81f * Time.deltaTime;
+            if (gravity >= maxGravity) gravity = maxGravity;
+        }
         else gravity = 0; // Frenado para cuando unicamente esta en el suelo.
 
         verticalSpeed = sTop - gravity;
@@ -281,21 +292,20 @@ public class BasicMovement : MonoBehaviour
         Move();
         Jump();
 
-        if (!tractionBool) // Hay que acabar de trabajar el tema del axis. Posiblemente poniendo un entero y solo cambiando el sentido del axis servirá. (algo hecho con anterioridad).
+        if (!tractionBool) // Hay que poner que no sea justo en el mismo momento de correr. 
         {
-            tractionAxis = Axis.x;
-            movement = new Vector3(Axis.x * speed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
+            if (Mathf.Abs(Axis.x) >= joystickThresholdMax) tractionAxis = Axis.x;
+            finalspeed = Axis.x * speed;
         }
-        else if (tractionBool && ecb.isGrounded)
+        else if (tractionBool && ecb.isGrounded && !isJumping)
         {
-            movement = new Vector3(tractionAxis * speed * Time.deltaTime, 0, 0);
-            
+            finalspeed = tractionAxis * speed;
         }
 
-        Debug.Log(tractionBool);
-        Debug.Log("Speed: " + speed);
-        Debug.Log("Axis: " + tractionAxis);
+        Vector3 movement = new Vector3(finalspeed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
 
+        //Debug.Log(tractionBool);
+        //Debug.Log("Axis traction: " + tractionAxis);
         //Debug.Log("Stick speed: " + resultStickSpeed + " m/s");
         //Debug.Log("Axis X: " + Axis.x);
         //Debug.Log("Speed: " + speed + " m/s");
@@ -347,9 +357,8 @@ public class BasicMovement : MonoBehaviour
         {
             if (hit.collider.gameObject.tag == "Stop")
             {
-                if (speed == walkSpeed && ecb.isGrounded) cantFall = true;
+                if (tractionBool && ecb.isGrounded) speed = 0;
             }
-            else cantFall = false;
         }
 
         Debug.DrawRay(transform.position, directionS * maxDistanceS, Color.red);

@@ -2458,10 +2458,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1156462897}
     - target: {fileID: 6979347876574697765, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697765, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -2501,62 +2497,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: weight
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: jbCounterMax
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: jfCounterMax
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: speedFullHop
-      value: 19.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: heightFullHop
-      value: 3.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: speedShortHop
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: tractionValue
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: heightShortHop
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: requiredStickTimeX
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: joystickChangeThreshold
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: jumpFramesMaxForStartJump
-      value: 9
-      objectReference: {fileID: 0}
-    - target: {fileID: 6979347876574697767, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: jumpFramesMaxForSwitchToFullHop
-      value: 8
-      objectReference: {fileID: 0}
     - target: {fileID: 6979347876574697769, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
       propertyPath: m_Name
       value: BaseCharacter
       objectReference: {fileID: 0}
-    - target: {fileID: 7394291408499803022, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
-      propertyPath: p1
-      value: 
-      objectReference: {fileID: 667022948}
     - target: {fileID: 7394291408499803022, guid: bc6b5b03713294d46a94e05152fd2a7c, type: 3}
       propertyPath: p1Anim
       value: 
