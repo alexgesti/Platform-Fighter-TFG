@@ -48,6 +48,7 @@ public class BasicMovement : MonoBehaviour
     bool isRunning;
     public float requiredStickTimeX, requiredStickSpeedY;
     float stickExitTimeY, resultStickSpeedY;
+    [HideInInspector] public bool DownAxisIsActive;
 
     [Header("HorizontalMovementValues")]
     public float tractionValue;
@@ -229,7 +230,7 @@ public class BasicMovement : MonoBehaviour
             isDJumping = false;
             djOneTime = false;
             dontJump = false;
-            isFastFall = false;
+            if (!ecb.thatsAPlatform) isFastFall = false;
 
             if (jFMFSJCounter >= jumpFramesMaxForStartJump)
             {
@@ -249,7 +250,12 @@ public class BasicMovement : MonoBehaviour
             if (gravity >= maxGravity) gravity = maxGravity;
             
             if (isFastFall) gravity = maxGravity + 5;
-            Debug.Log(isFastFall);
+
+            if (!isJumping && gravity < speedFullHop && !dontJump)
+            {
+                sTop = speedFullHop;
+                gravity = speedFullHop;
+            }
         }
         else gravity = 0; // Frenado para cuando unicamente esta en el suelo.
 
@@ -274,19 +280,22 @@ public class BasicMovement : MonoBehaviour
                     {
                         ecb.isGoingToTraspassP = true;
                         ecb.isGrounded = false;
+                        DownAxisIsActive = true;
                     }
                 }
             }
-            else
-            {
-                resultStickSpeedY = 0;
-            }
+            else resultStickSpeedY = 0;
         }
 
         if (ecb.isGoingToTraspassP && djOneTime && verticalSpeed < 0) // Corrección platafroma con doble salto.
         {
             ecb.isGoingToTraspassP = false;
             ecb.canTraspassP = true;
+        }
+        else if (isFastFall && ecb.thatsAPlatform)
+        {
+            ecb.isGoingToTraspassP = true;
+            ecb.canTraspassP = false;
         }
 
         // Fast fall
@@ -297,12 +306,13 @@ public class BasicMovement : MonoBehaviour
                 if (Axis.y <= -joystickThresholdMax)
                 {
                     if (resultStickSpeedY == 0) resultStickSpeedY = Mathf.Abs((joystickThresholdMax - joystickThresholdMin) / (Time.time - stickExitTimeY));
-                    if (requiredStickSpeedY >= resultStickSpeedY)
+                    if (requiredStickSpeedY >= resultStickSpeedY && !DownAxisIsActive)
                     {
                         isFastFall = true;
                     }
                 }
             }
+            else DownAxisIsActive = false;
         }
     }
 

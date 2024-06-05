@@ -12,6 +12,7 @@ public class EnvironmentCollisionBox : MonoBehaviour
 
     [HideInInspector] public bool canTraspassP;
     [HideInInspector] public bool isGoingToTraspassP;
+    [HideInInspector] public bool thatsAPlatform;
 
     [HideInInspector] public bool isCollidingW;
     [HideInInspector] public bool isRaycastHitW;
@@ -109,6 +110,11 @@ public class EnvironmentCollisionBox : MonoBehaviour
             isGoingToTraspassP = false;
         }
 
+        if (other.gameObject.tag == "PlatformF" && !transform.parent.GetComponent<BasicMovement>().DownAxisIsActive)
+        {
+            thatsAPlatform = true;
+        }
+
         if (other.gameObject.tag == "Wall_R" || other.gameObject.tag == "Wall_L")
         {
             isCollidingW = true;
@@ -130,6 +136,7 @@ public class EnvironmentCollisionBox : MonoBehaviour
         {
             isGrounded = false;
             canTraspassP = false;
+            thatsAPlatform = false;
         }
 
         if (other.gameObject.tag == "Wall_R" || other.gameObject.tag == "Wall_L")
