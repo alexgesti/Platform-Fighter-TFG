@@ -15,13 +15,12 @@ public class BasicMovement : MonoBehaviour
     public float weight;
     public float speedShortHop;
     public float speedFullHop;
-    [HideInInspector] public float verticalSpeed;
-    float jFMFSTFHCounter, jFMFSJCounter, sTop;
+    [HideInInspector] public float verticalSpeed, jFMFSTFHCounter, jFMFSJCounter, sTop;
     public float jumpFramesMaxForSwitchToFullHop, jumpFramesMaxForStartJump;
     float gravity;
     public float maxGravity;
     [HideInInspector] public bool isJumping, isInTheAirUp;
-    bool dontJump;
+    bool dontJump, isFastFall;
 
     [Header("Movement Vertical (Double Jump)")]
     [HideInInspector] public bool djOneTime;
@@ -230,6 +229,7 @@ public class BasicMovement : MonoBehaviour
             isDJumping = false;
             djOneTime = false;
             dontJump = false;
+            isFastFall = false;
 
             if (jFMFSJCounter >= jumpFramesMaxForStartJump)
             {
@@ -247,6 +247,9 @@ public class BasicMovement : MonoBehaviour
         {
             gravity += weight * 9.81f * Time.deltaTime;
             if (gravity >= maxGravity) gravity = maxGravity;
+            
+            if (isFastFall) gravity = maxGravity + 5;
+            Debug.Log(isFastFall);
         }
         else gravity = 0; // Frenado para cuando unicamente esta en el suelo.
 
@@ -284,6 +287,22 @@ public class BasicMovement : MonoBehaviour
         {
             ecb.isGoingToTraspassP = false;
             ecb.canTraspassP = true;
+        }
+
+        // Fast fall
+        if (!ecb.isGrounded && verticalSpeed < 0)
+        {
+            if (Axis.y < -joystickThresholdMin)
+            {
+                if (Axis.y <= -joystickThresholdMax)
+                {
+                    if (resultStickSpeedY == 0) resultStickSpeedY = Mathf.Abs((joystickThresholdMax - joystickThresholdMin) / (Time.time - stickExitTimeY));
+                    if (requiredStickSpeedY >= resultStickSpeedY)
+                    {
+                        isFastFall = true;
+                    }
+                }
+            }
         }
     }
 

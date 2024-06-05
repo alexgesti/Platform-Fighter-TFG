@@ -93,6 +93,12 @@ public class EnvironmentCollisionBox : MonoBehaviour
         {
             isGrounded = true;
             isGoingToTraspassP = false;
+            if (transform.parent.GetComponent<BasicMovement>().sTop == 0)
+            {
+                transform.parent.GetComponent<BasicMovement>().isJumping = false;
+                transform.parent.GetComponent<BasicMovement>().jFMFSJCounter = 0;
+                transform.parent.GetComponent<BasicMovement>().jFMFSTFHCounter = 0;
+            }
         }
 
         if (other.gameObject.tag == "PlatformF" && !transform.parent.GetComponent<BasicMovement>().isInTheAirUp
