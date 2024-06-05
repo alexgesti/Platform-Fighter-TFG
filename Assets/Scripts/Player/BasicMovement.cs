@@ -58,6 +58,8 @@ public class BasicMovement : MonoBehaviour
 
     [HideInInspector] public EnvironmentCollisionBox ecb;
 
+    // Poner que si se usa teclado este el axis a 0 cuando no se pulse.
+
     void Start()
     {
         input.MoveEvent += HandleMove;
