@@ -261,12 +261,12 @@ public class BasicMovement : MonoBehaviour
 
         verticalSpeed = sTop - gravity;
 
-        //Debug.Log("Grounded " + ecb.isGrounded);
-        //Debug.Log("Bool " + isJumping);
+        Debug.Log("Grounded " + ecb.isGrounded);
+        Debug.Log("Bool " + isJumping);
         //Debug.Log("TimePress " + jbCounter);
         //Debug.Log("TimeFrames " + jfCounter);
-        //Debug.Log("Speed " + verticalSpeed);
-        //Debug.Log("G " + gravity);
+        Debug.Log("Speed " + verticalSpeed);
+        Debug.Log("G " + gravity);
 
         // Fall from platform
         if (ecb.isGrounded && ecb.canTraspassP)
@@ -292,7 +292,8 @@ public class BasicMovement : MonoBehaviour
             ecb.isGoingToTraspassP = false;
             ecb.canTraspassP = true;
         }
-        else if (isFastFall && ecb.thatsAPlatform)
+        
+        if (isFastFall && ecb.thatsAPlatform) // Hace que no se pare en seco en la plataforma (¿?, hay que comprobarlo)
         {
             ecb.isGoingToTraspassP = true;
             ecb.canTraspassP = false;
