@@ -58,8 +58,6 @@ public class BasicMovement : MonoBehaviour
 
     [HideInInspector] public EnvironmentCollisionBox ecb;
 
-    // Poner que si se usa teclado este el axis a 0 cuando no se pulse.
-
     void Start()
     {
         input.MoveEvent += HandleMove;
@@ -136,17 +134,18 @@ public class BasicMovement : MonoBehaviour
             framesHeld = 0;
         }
 
-        if ((prevThreshold >= 0 && Axis.x < 0 || prevThreshold <= 0 && Axis.x > 0)) // Corrector para cambio de lado (reset a la variable contador)
+        if ((prevThreshold > joystickThresholdMin && Axis.x < -joystickThresholdMin || prevThreshold < -joystickThresholdMin && Axis.x > joystickThresholdMin)) // Corrector para cambio de lado (reset a la variable contador)
         {
             framesHeld = 0;
-            if (isRunning)
+            if (isRunning) // para la animacion quizas se debá de fusionar en una o mirar una alternativa.
             {
-                tractionBool = true;
                 isChangingDirTraction = true;
+                tractionBool = true;
             }
         }
 
-        prevThreshold = Axis.x;
+        if (Mathf.Abs(Axis.x) > joystickThresholdMin) prevThreshold = Axis.x;
+        else prevThreshold = 0;
 
         // Not falling when traction (stopping)
         StopOnLedge();
@@ -263,12 +262,12 @@ public class BasicMovement : MonoBehaviour
 
         verticalSpeed = sTop - gravity;
 
-        Debug.Log("Grounded " + ecb.isGrounded);
-        Debug.Log("Bool " + isJumping);
+        //Debug.Log("Grounded " + ecb.isGrounded);
+        //Debug.Log("Bool " + isJumping);
         //Debug.Log("TimePress " + jbCounter);
         //Debug.Log("TimeFrames " + jfCounter);
-        Debug.Log("Speed " + verticalSpeed);
-        Debug.Log("G " + gravity);
+        //Debug.Log("Speed " + verticalSpeed);
+        //Debug.Log("G " + gravity);
 
         // Fall from platform
         if (ecb.isGrounded && ecb.canTraspassP)
