@@ -19,8 +19,8 @@ public class BasicMovement : MonoBehaviour
     public float jumpFramesMaxForSwitchToFullHop, jumpFramesMaxForStartJump;
     float gravity;
     public float maxGravity;
-    [HideInInspector] public bool isJumping, isInTheAirUp;
-    bool dontJump, isFastFall;
+    [HideInInspector] public bool isJumping, isInTheAirUp, isFastFall;
+    bool dontJump;
 
     [Header("Movement Vertical (Double Jump)")]
     [HideInInspector] public bool djOneTime;
@@ -33,7 +33,8 @@ public class BasicMovement : MonoBehaviour
     public Vector3 directionC;
     public float maxDistanceC;
     public static float maxDCCopy;
-    public bool itTraspass;
+    [HideInInspector] public bool itTraspass;
+    public bool raycastHitGround;
     GameObject obj;
 
     [Header("RaycastLedge")]
@@ -66,9 +67,9 @@ public class BasicMovement : MonoBehaviour
         input.JumpCancelEvent += HandleCancelJump;
         
         ecb = GetComponentInChildren<EnvironmentCollisionBox>();
-        //jumpForceConst = jumpForce;
 
         maxDCCopy = maxDistanceC;
+        raycastHitGround = true;
     }
      
     private void Update()
@@ -111,7 +112,10 @@ public class BasicMovement : MonoBehaviour
         }
         else
         {
-            if (isRunning) tractionBool = true;
+            if (isRunning)
+            {
+                tractionBool = true;
+            }
             else if (speed == walkSpeed) speed = 0;
             
             if (speed > 0 && tractionBool)
@@ -134,7 +138,9 @@ public class BasicMovement : MonoBehaviour
             framesHeld = 0;
         }
 
-        if ((prevThreshold > joystickThresholdMin && Axis.x < -joystickThresholdMin || prevThreshold < -joystickThresholdMin && Axis.x > joystickThresholdMin)) // Corrector para cambio de lado (reset a la variable contador)
+        if (prevThreshold > joystickThresholdMin && Axis.x < -joystickThresholdMin || 
+            prevThreshold < -joystickThresholdMin && Axis.x > joystickThresholdMin) 
+            // Corrector para cambio de lado (reset a la variable contador)
         {
             framesHeld = 0;
             if (isRunning) // para la animacion quizas se debá de fusionar en una o mirar una alternativa.
@@ -181,7 +187,12 @@ public class BasicMovement : MonoBehaviour
     void Jump()
     {
         // Movement Vertical (Jump)
-        if (!ecb.isGrounded) canDoubleJump = true; 
+        if (!ecb.isGrounded)
+        {
+            canDoubleJump = true;
+            jFMFSTFHCounter = 0;
+            jFMFSJCounter = 0;
+        }
 
         if (!canDoubleJump && !dontJump) // Normal Jump
         {
@@ -237,10 +248,11 @@ public class BasicMovement : MonoBehaviour
             {
                 jFMFSTFHCounter = 0;
                 jFMFSJCounter = 0;
-                if (isJumping)
-                {
-                    isJumping = false;
-                }
+            }
+
+            if (isJumping)
+            {
+                isJumping = false;
             }
         }
 
@@ -350,17 +362,20 @@ public class BasicMovement : MonoBehaviour
         // Raycast part
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position - new Vector3 (0, transform.localScale.y / 2, 0), directionC, out hit, maxDistanceC))
+        if (Physics.Raycast(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC, out hit, maxDistanceC))
         {
             if (hit.collider.gameObject.tag == "Floor" || hit.collider.gameObject.tag == "PlatformF")
             {
                 if (!pCanTraspass)
                 {
                     itTraspass = true;
+                    raycastHitGround = true;
                     obj = hit.collider.gameObject;
                 }
+                if (isFastFall) raycastHitGround = true;
             }
         }
+        else raycastHitGround = false;
 
         Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistanceC, Color.green);
     

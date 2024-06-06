@@ -7,7 +7,8 @@ public class AnimationController : MonoBehaviour
     BasicMovement player;
     Animator anim;
     public GameObject dJump;
-    bool dOneTime;
+    public GameObject fastFall;
+    bool dOneTime, fOneTime;
     float speedW;
 
     // Start is called before the first frame update
@@ -90,6 +91,19 @@ public class AnimationController : MonoBehaviour
             dJump.transform.position = new Vector3(0, -10, 0);
             dJump.GetComponent<Animator>().SetBool("dJump", false);
             dOneTime = false;
+        }
+
+        if (player.isFastFall && !fOneTime) // Fast Fall
+        {
+            fastFall.transform.position = player.transform.position + new Vector3(0.3f, 0.2f, -0.2f);
+            fastFall.GetComponent<Animator>().SetBool("fastfall", true);
+            fOneTime = true;
+        }
+        else if (!player.isFastFall)
+        {
+            fastFall.transform.position = new Vector3(0, -10, 0);
+            fastFall.GetComponent<Animator>().SetBool("fastfall", false);
+            fOneTime = false;
         }
     }
 }

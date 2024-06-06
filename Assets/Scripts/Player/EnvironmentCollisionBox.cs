@@ -90,7 +90,8 @@ public class EnvironmentCollisionBox : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Floor" 
-            && !transform.parent.GetComponent<BasicMovement>().pCanTraspass)
+            && !transform.parent.GetComponent<BasicMovement>().pCanTraspass
+            && transform.parent.GetComponent<BasicMovement>().raycastHitGround)
         {
             isGrounded = true;
             isGoingToTraspassP = false;
@@ -103,7 +104,8 @@ public class EnvironmentCollisionBox : MonoBehaviour
         }
 
         if (other.gameObject.tag == "PlatformF" && !transform.parent.GetComponent<BasicMovement>().isInTheAirUp
-            && !transform.parent.GetComponent<BasicMovement>().pCanTraspass && !isGoingToTraspassP)
+            && !transform.parent.GetComponent<BasicMovement>().pCanTraspass && !isGoingToTraspassP
+            && transform.parent.GetComponent<BasicMovement>().raycastHitGround)
         {
             isGrounded = true;
             canTraspassP = true;
