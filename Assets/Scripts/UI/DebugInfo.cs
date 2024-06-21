@@ -26,7 +26,7 @@ public class DebugInfo : MonoBehaviour
     {
         Application.targetFrameRate = 60;
 
-        dScript = GameObject.FindGameObjectWithTag("Layer1").GetComponent<DamagePlayer>(); //Add un "if exists p1"
+        dScript = GameObject.FindGameObjectWithTag("Player").GetComponent<DamagePlayer>(); //Add un "if exists p1"
     }
 
     // Start is called before the first frame update
@@ -86,14 +86,14 @@ public class DebugInfo : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F2)) activeColl = !activeColl;
         if (activeColl)
         {
-            lineCollision.SetPosition(0, EnvironmentCollisionBox.layer1[0] + player.position);
-            lineCollision.SetPosition(1, EnvironmentCollisionBox.layer1[1] + player.position);
-            lineCollision.SetPosition(2, EnvironmentCollisionBox.layer1[4] + player.position);
-            lineCollision.SetPosition(3, EnvironmentCollisionBox.layer1[3] + player.position);
-            lineCollision.SetPosition(4, EnvironmentCollisionBox.layer1[0] + player.position);
+            lineCollision.SetPosition(0, CollisionBox.layer[0] + player.position);
+            lineCollision.SetPosition(1, CollisionBox.layer[1] + player.position);
+            lineCollision.SetPosition(2, CollisionBox.layer[4] + player.position);
+            lineCollision.SetPosition(3, CollisionBox.layer[3] + player.position);
+            lineCollision.SetPosition(4, CollisionBox.layer[0] + player.position);
 
-            lineRaycast.SetPosition(0, player.position - new Vector3(0, player.localScale.y / 2, 0)); 
-            lineRaycast.SetPosition(1, player.position - new Vector3(0, player.localScale.y / 2 + BasicMovement.maxDCCopy, 0)); 
+            lineRaycast.SetPosition(0, player.position); 
+            lineRaycast.SetPosition(1, player.position - new Vector3(0, CollisionBox.maxDistance, 0)); 
         }
         else
         {

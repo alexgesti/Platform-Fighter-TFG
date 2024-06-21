@@ -21,7 +21,7 @@ public class DamagePlayer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        player = transform.parent.GetComponentInParent<Transform>();
+        player = GetComponent<Transform>();
     }
 
     private void Update()

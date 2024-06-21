@@ -95,6 +95,7 @@ public class EnvironmentCollisionBox : MonoBehaviour
         {
             isGrounded = true;
             isGoingToTraspassP = false;
+            transform.parent.GetComponent<BasicMovement>().DownAxisIsActive = false;
             if (transform.parent.GetComponent<BasicMovement>().sTop == 0)
             {
                 transform.parent.GetComponent<BasicMovement>().isJumping = false;

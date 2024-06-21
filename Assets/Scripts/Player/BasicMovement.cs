@@ -312,7 +312,7 @@ public class BasicMovement : MonoBehaviour
             ecb.canTraspassP = false;
         }
 
-        // Fast fall
+        // Fast fall La culpa del bug de atravesar no es de esto, es de la caida de plataforma parece.
         if (!ecb.isGrounded && verticalSpeed < 0)
         {
             if (Axis.y < -joystickThresholdMin)
