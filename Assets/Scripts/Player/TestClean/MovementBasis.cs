@@ -22,7 +22,7 @@ public class MovementBasis : MonoBehaviour
     public float walkSpeed;
     public float runSpeed;
     [HideInInspector] public float speed;
-    float finalspeed;
+    [HideInInspector] public float finalspeed;
 
     [Header("Dash")]
     public float dashSpeed;

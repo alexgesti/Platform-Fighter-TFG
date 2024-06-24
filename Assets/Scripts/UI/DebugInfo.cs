@@ -109,5 +109,8 @@ public class DebugInfo : MonoBehaviour
 
         // Add damage F3
         if (Input.GetKeyDown(KeyCode.F3)) dScript.ko = true;
+
+        // Put player in air
+        if (Input.GetKeyDown(KeyCode.F4)) dScript.transform.position = new Vector3(0, 10, 0);
     }
 }

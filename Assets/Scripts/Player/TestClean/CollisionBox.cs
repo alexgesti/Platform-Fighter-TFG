@@ -6,6 +6,7 @@ public class CollisionBox : MonoBehaviour
 {
     [HideInInspector] public static Vector3[] layer = new Vector3[7]; // Principal detector
     MeshCollider meshCollider;
+    Vector3[] nextLayer;
 
     [HideInInspector] public bool isGrounded;
     MovementBasis player;
@@ -31,8 +32,7 @@ public class CollisionBox : MonoBehaviour
     void Update()
     {
         RaycastGround();
-
-        //if (!raycastHitGround) isGrounded = false;
+        NextCollision();
     }
 
     void CreatingCollision()
@@ -68,6 +68,18 @@ public class CollisionBox : MonoBehaviour
             meshCollider.sharedMesh = mesh;
             meshCollider.convex = true;
             meshCollider.isTrigger = true;
+
+            nextLayer = layer;
+        }
+    }
+
+    void NextCollision()
+    {
+        for (int i = 0; i < layer.Length; i++)
+        {
+            nextLayer[i] = layer[i] + new Vector3(player.finalspeed * Time.deltaTime, player.verticalSpeed * Time.deltaTime, 0);
+
+            if (i != 0) Debug.DrawLine(nextLayer[i - 1], nextLayer[i], Color.red);
         }
     }
 
@@ -80,25 +92,27 @@ public class CollisionBox : MonoBehaviour
 
         if (Physics.Raycast(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC, out hit, maxDistance))
         {
-            if (hit.collider)
-            {
-                if (hit.collider.gameObject.tag == "PlatformF"
-                    || hit.collider.gameObject.tag == "Floor")
-                {
-                    rayHitObj = hit.collider.transform;
-                }
-            }
+            //if (hit.collider)
+            //{
+            //    if (hit.collider.gameObject.tag == "PlatformF"
+            //        || hit.collider.gameObject.tag == "Floor")
+            //    {
+            //        rayHitObj = hit.collider.transform;
+            //    }
+            //}
 
             if (hit.collider.gameObject.tag == "Floor")
             {
                 raycastHitFloor = true;
                 raycastHitPlatform = false;
+                rayHitObj = hit.collider.transform;
             }
 
             if (hit.collider.gameObject.tag == "PlatformF")
             {
                 raycastHitPlatform = true;
                 raycastHitFloor = false;
+                rayHitObj = hit.collider.transform;
             }
 
             if (hit.collider.gameObject.tag != "PlatformF" && hit.collider.gameObject.tag != "Floor")
