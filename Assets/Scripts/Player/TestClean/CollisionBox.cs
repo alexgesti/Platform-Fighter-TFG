@@ -78,7 +78,7 @@ public class CollisionBox : MonoBehaviour
         if (rayHitObj != null) maxDistance = transform.position.y - 
                 (rayHitObj.position.y + rayHitObj.localScale.y / 2);
 
-        if (Physics.Raycast(transform.position, directionC, out hit, maxDistance))
+        if (Physics.Raycast(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC, out hit, maxDistance))
         {
             if (hit.collider)
             {
@@ -107,7 +107,7 @@ public class CollisionBox : MonoBehaviour
                 raycastHitFloor = false;
             }
 
-            Debug.Log(hit.collider);
+            //Debug.Log(hit.collider);
         }
         else
         {
@@ -116,7 +116,7 @@ public class CollisionBox : MonoBehaviour
             raycastHitFloor = false;
         }
 
-        Debug.DrawRay(transform.position, directionC * maxDistance, Color.red);
+        Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistance, Color.red); //probar las colisiones de caida.raycast bien? o es colision ?
     }
 
     private void OnTriggerEnter(Collider other)
@@ -130,6 +130,8 @@ public class CollisionBox : MonoBehaviour
             new Vector3(transform.position.x,
             other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
             transform.position.z);
+
+            player.AfterLanding();
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform && player.verticalSpeed <= 0)
@@ -141,6 +143,8 @@ public class CollisionBox : MonoBehaviour
             new Vector3(transform.position.x,
             other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
             transform.position.z);
+
+            player.AfterLanding();
         }
     }
 

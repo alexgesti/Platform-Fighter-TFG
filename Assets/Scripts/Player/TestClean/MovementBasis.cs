@@ -35,6 +35,11 @@ public class MovementBasis : MonoBehaviour
     [HideInInspector] public bool tractionBool, isChangingDirTraction;
     float tractionAxis, tractionFrames;
 
+    [Header("Aerial Speed")]
+    public float airFastSpeed;
+    public float airSlowSpeed;
+    bool speedAirOneTime;
+
     [Header("Movement Vertical")]
     [Header("Force")]
     public float speedShortHop;
@@ -93,7 +98,7 @@ public class MovementBasis : MonoBehaviour
     // Logic Movement
     void HorzitonalMovement()
     {
-        if (cb.isGrounded)
+        if (cb.isGrounded) // Grounded
         {
             if (Mathf.Abs(Axis.x) > joystickThresholdMin && !tractionBool)
             {
@@ -164,6 +169,18 @@ public class MovementBasis : MonoBehaviour
 
             if (Mathf.Abs(Axis.x) > joystickThresholdMin) prevThreshold = Axis.x;
             else prevThreshold = 0;
+
+            speedAirOneTime = false;
+        }
+        else if (!cb.isGrounded) // Aerial
+        {
+            if (Mathf.Abs(Axis.x) > joystickThresholdMin && !speedAirOneTime)
+            {
+                if ((speed == walkSpeed || speed == runSpeed || isDashing) && isJumping && !isDJumping) speed = airFastSpeed;
+                else speed = airSlowSpeed;
+
+                speedAirOneTime = true;
+            }
         }
     }
 
@@ -194,6 +211,7 @@ public class MovementBasis : MonoBehaviour
                 gravity = 0;
                 sTop = speedFullHop;
                 djOneTime = true;
+                speedAirOneTime = false;
             }
         }
 
@@ -213,9 +231,6 @@ public class MovementBasis : MonoBehaviour
 
             if (isJumping) isJumping = false;
         }
-
-        Debug.Log("Switch: " + counterSwitchJump);
-        Debug.Log("Jump: " + counterJump);
     }
 
     void Gravity()
@@ -226,6 +241,32 @@ public class MovementBasis : MonoBehaviour
             if (gravity >= maxGravity) gravity = maxGravity;
         }
         else gravity = 0;
+    }
+
+    public void AfterLanding()
+    {
+        // Run reset
+        isDashing = false;
+        tractionBool = false;
+        isRunning = false;
+        isChangingDirTraction = false;
+        tractionFrames = 0;
+        framesHeld = 10;
+
+        if (Mathf.Abs(Axis.x) > joystickThresholdMin)
+        {
+            speed = walkSpeed;
+        }
+
+        // Jump Reset
+        sTop = 0;
+        verticalSpeed = 0;
+        canDJump = false;
+        isDJumping = false;
+        djOneTime = false;
+        counterJump = 0;
+        counterSwitchJump = 0;
+        isJumping = false;
     }
 
     void Movement()
@@ -265,6 +306,10 @@ public class MovementBasis : MonoBehaviour
                 else finalspeed = Axis.x * speed;
             }
             else if (tractionBool && !isDashing) finalspeed = Mathf.Round(tractionAxis) * speed;
+        }
+        else if (!cb.isGrounded)
+        {
+            finalspeed = Axis.x * speed;
         }
 
         Vector3 movement = new Vector3(finalspeed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);

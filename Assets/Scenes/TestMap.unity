@@ -7953,7 +7953,9 @@ MonoBehaviour:
   tractionValue: 0.5
   tractionBool: 0
   isChangingDirTraction: 0
-  speedShortHop: 15
+  airFastSpeed: 12
+  airSlowSpeed: 8
+  speedShortHop: 13
   speedFullHop: 19.5
   verticalSpeed: 0
   maxFramesSwitchJump: 5

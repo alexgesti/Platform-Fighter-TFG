@@ -92,7 +92,7 @@ public class DebugInfo : MonoBehaviour
             lineCollision.SetPosition(3, CollisionBox.layer[3] + player.position);
             lineCollision.SetPosition(4, CollisionBox.layer[0] + player.position);
 
-            lineRaycast.SetPosition(0, player.position); 
+            lineRaycast.SetPosition(0, player.position - new Vector3(0, player.localScale.y / 2, 0)); 
             lineRaycast.SetPosition(1, player.position - new Vector3(0, CollisionBox.maxDistance, 0)); 
         }
         else

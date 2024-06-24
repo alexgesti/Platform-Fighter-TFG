@@ -55,6 +55,8 @@ public class AnimationController : MonoBehaviour
             anim.SetBool("isTraction", false);
             anim.SetBool("isDirectionChanged", false);
             anim.SetBool("isGonnaRun", false);
+            anim.SetBool("isJump", false);
+            anim.SetBool("isFall", false);
 
             particle.transform.position = new Vector3(0, -10, 0);
         }
@@ -62,6 +64,8 @@ public class AnimationController : MonoBehaviour
         {
             anim.SetBool("isWalk", true);
             anim.SetBool("isRun", false);
+            anim.SetBool("isJump", false);
+            anim.SetBool("isFall", false);
 
             // Animation Speed Walk
             speedW = Mathf.Abs(player.Axis.x) * 3;
@@ -69,6 +73,8 @@ public class AnimationController : MonoBehaviour
         }
         else if (player.speed == 0 && !player.tractionBool && player.cb.isGrounded) // Idle -> Apaga igualmente a isRun y isWalk
         {
+            anim.SetBool("isJump", false);
+            anim.SetBool("isFall", false);
             anim.SetBool("isWalk", false);
             anim.SetBool("isRun", false);
             anim.SetBool("isTraction", false);
@@ -78,7 +84,7 @@ public class AnimationController : MonoBehaviour
             dOneTime = false;
             particle.transform.position = new Vector3(0, -10, 0);
         }
-        else if (player.verticalSpeed > 0) // Jump
+        else if (player.verticalSpeed > 0 && !player.cb.isGrounded) // Jump
         {
             anim.SetBool("isJump", true);
             anim.SetBool("isWalk", false);
@@ -91,6 +97,11 @@ public class AnimationController : MonoBehaviour
         {
             anim.SetBool("isJump", false);
             anim.SetBool("isFall", true);
+            anim.SetBool("isWalk", false);
+            anim.SetBool("isRun", false);
+            anim.SetBool("isTraction", false);
+            anim.SetBool("isDirectionChanged", false);
+            anim.SetBool("isGonnaRun", false);
         }
         else if (player.tractionBool && player.isChangingDirTraction) // Change direction (traction)
         {
