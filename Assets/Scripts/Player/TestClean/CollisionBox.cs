@@ -6,16 +6,15 @@ public class CollisionBox : MonoBehaviour
 {
     [HideInInspector] public static Vector3[] layer = new Vector3[7]; // Principal detector
     MeshCollider meshCollider;
-    Vector3[] nextLayer;
 
     [HideInInspector] public bool isGrounded;
     MovementBasis player;
 
     [Header("RaycastPosition")]
     public Vector3 directionC;
-    //[HideInInspector] public bool itTraspass;
     [HideInInspector] public static float maxDistance;
-    public bool raycastHitFloor, raycastHitPlatform, itsTagged;
+    [HideInInspector] public bool raycastHitFloor;
+    [HideInInspector] public bool raycastHitPlatform;
     Transform rayHitObj;
     public Transform baseRayHitObj;
 
@@ -32,7 +31,6 @@ public class CollisionBox : MonoBehaviour
     void Update()
     {
         RaycastGround();
-        NextCollision();
     }
 
     void CreatingCollision()
@@ -68,18 +66,6 @@ public class CollisionBox : MonoBehaviour
             meshCollider.sharedMesh = mesh;
             meshCollider.convex = true;
             meshCollider.isTrigger = true;
-
-            nextLayer = layer;
-        }
-    }
-
-    void NextCollision()
-    {
-        for (int i = 0; i < layer.Length; i++)
-        {
-            nextLayer[i] = layer[i] + new Vector3(player.finalspeed * Time.deltaTime, player.verticalSpeed * Time.deltaTime, 0);
-
-            if (i != 0) Debug.DrawLine(nextLayer[i - 1], nextLayer[i], Color.red);
         }
     }
 
@@ -92,14 +78,10 @@ public class CollisionBox : MonoBehaviour
 
         if (Physics.Raycast(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC, out hit, maxDistance))
         {
-            //if (hit.collider)
-            //{
-            //    if (hit.collider.gameObject.tag == "PlatformF"
-            //        || hit.collider.gameObject.tag == "Floor")
-            //    {
-            //        rayHitObj = hit.collider.transform;
-            //    }
-            //}
+            if (hit.collider)
+                if (hit.collider.gameObject.tag == "PlatformF"
+                    || hit.collider.gameObject.tag == "Floor")
+                    rayHitObj = hit.collider.transform;
 
             if (hit.collider.gameObject.tag == "Floor")
             {
@@ -123,12 +105,7 @@ public class CollisionBox : MonoBehaviour
 
             //Debug.Log(hit.collider);
         }
-        else
-        {
-            if (!isGrounded) rayHitObj = baseRayHitObj;
-            raycastHitPlatform = false;
-            raycastHitFloor = false;
-        }
+        else rayHitObj = baseRayHitObj;
 
         Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistance, Color.red); //probar las colisiones de caida.raycast bien? o es colision ?
     }
@@ -148,7 +125,8 @@ public class CollisionBox : MonoBehaviour
             player.AfterLanding();
         }
 
-        if (other.gameObject.tag == "PlatformF" && raycastHitPlatform && player.verticalSpeed <= 0)
+        if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
+            && player.verticalSpeed <= 0 && !player.canFallPlatform)
         {
             isGrounded = true;
 
@@ -175,7 +153,8 @@ public class CollisionBox : MonoBehaviour
             transform.position.z);
         }
 
-        if (other.gameObject.tag == "PlatformF" && raycastHitPlatform && player.verticalSpeed <= 0)
+        if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
+            && player.verticalSpeed <= 0 && !player.canFallPlatform)
         {
             isGrounded = true;
 

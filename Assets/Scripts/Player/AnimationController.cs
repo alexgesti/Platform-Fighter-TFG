@@ -24,12 +24,12 @@ public class AnimationController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (player.Axis.x > player.joystickThresholdMin)
+        if (player.Axis.x > player.joystickThresholdMin && player.cb.isGrounded)
         {
             transform.localEulerAngles = new Vector3(0, 90, 0);
             particle.transform.localRotation = Quaternion.Euler(-10, -90, 0);
         }
-        else if (player.Axis.x < -player.joystickThresholdMin)
+        else if (player.Axis.x < -player.joystickThresholdMin && player.cb.isGrounded)
         {
             transform.localEulerAngles = new Vector3(0, -90, 0);
             particle.transform.localRotation = Quaternion.Euler(-10, 90, 0);
@@ -136,17 +136,18 @@ public class AnimationController : MonoBehaviour
             djOneTime = false;
         }
 
-        //if (player.isFastFall && !fOneTime) // Fast Fall
-        //{
-        //    fastFall.transform.position = player.transform.position + new Vector3(0.3f, 0.2f, -0.2f);
-        //    fastFall.GetComponent<Animator>().SetBool("fastfall", true);
-        //    fOneTime = true;
-        //}
-        //else if (!player.isFastFall)
-        //{
-        //    fastFall.transform.position = new Vector3(0, -10, 0);
-        //    fastFall.GetComponent<Animator>().SetBool("fastfall", false);
-        //    fOneTime = false;
-        //}
+        if (player.isFastFall && !fOneTime) // Fast Fall
+        {
+            fastFall.transform.position = player.transform.position + new Vector3(0, 0.2f, -0.2f);
+            fastFall.GetComponent<Animator>().SetBool("fastfall", true);
+            fOneTime = true;
+        }
+        else if (fastFall.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("spark_signal") &&
+            fastFall.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && player.cb.isGrounded)
+        {
+            fastFall.transform.position = new Vector3(0, -10, 0);
+            fastFall.GetComponent<Animator>().SetBool("fastfall", false);
+            fOneTime = false;
+        }
     }
 }

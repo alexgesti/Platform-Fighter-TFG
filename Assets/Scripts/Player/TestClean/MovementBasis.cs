@@ -58,6 +58,16 @@ public class MovementBasis : MonoBehaviour
     float gravity;
     public float maxGravity;
 
+    [Header("Fast Fall and Fall from platform")]
+    public float requiredStickTimeY;
+    float framesHeldY;
+    [HideInInspector] public bool isFastFall;
+    [HideInInspector] public bool canFallPlatform;
+    bool isDownAxisY;
+
+    [Header("Crouch")]
+    bool isCrouching;
+
     [HideInInspector] public CollisionBox cb;
 
     // Start is called before the first frame update
@@ -98,91 +108,101 @@ public class MovementBasis : MonoBehaviour
     // Logic Movement
     void HorzitonalMovement()
     {
-        if (cb.isGrounded) // Grounded
-        {
-            if (Mathf.Abs(Axis.x) > joystickThresholdMin && !tractionBool)
+        //if (!isCrouching)
+        //{
+            if (cb.isGrounded) // Grounded
             {
-                if (!isRunning) framesHeld++;
-
-                if (Mathf.Abs(Axis.x) >= joystickThresholdMax)
+                if (Mathf.Abs(Axis.x) > joystickThresholdMin && !tractionBool)
                 {
-                    if (framesHeld <= requiredStickTimeX)
+                    if (!isRunning) framesHeld++;
+
+                    if (Mathf.Abs(Axis.x) >= joystickThresholdMax)
                     {
-                        if (!isDashing) // Start Dash
+                        if (framesHeld <= requiredStickTimeX)
+                        {
+                            if (!isDashing) // Start Dash
+                            {
+                                isDashing = true;
+                                dashTimeLeft = dashDuration;
+                                dashDirection = Axis.x;
+                            }
+                        }
+                        else if (isDashing && Mathf.Sign(Axis.x) != Mathf.Sign(dashDirection)) // Change direction dash
                         {
                             isDashing = true;
                             dashTimeLeft = dashDuration;
                             dashDirection = Axis.x;
                         }
-                    }
-                    else if (isDashing && Mathf.Sign(Axis.x) != Mathf.Sign(dashDirection)) // Change direction dash
-                    {
-                        isDashing = true;
-                        dashTimeLeft = dashDuration;
-                        dashDirection = Axis.x;
-                    }
 
-                    if (isRunning) speed = runSpeed;
+                        if (isRunning) speed = runSpeed;
+                        else speed = walkSpeed;
+                    }
                     else speed = walkSpeed;
                 }
-                else speed = walkSpeed;
-            }
-            else // Traction + Stop
-            {
-                if (isRunning) tractionBool = true;
-                else if (speed == walkSpeed || isDashing)
+                else // Traction + Stop
                 {
-                    speed = 0;
-                    isDashing = false;
+                    if (isRunning) tractionBool = true;
+                    else if (speed == walkSpeed || isDashing)
+                    {
+                        speed = 0;
+                        isDashing = false;
+                    }
+
+                    if (speed > 0 && tractionBool) speed -= tractionValue;
+                    else if (speed <= 0 && tractionBool)
+                    {
+                        speed = 0;
+                        tractionFrames++;
+
+                        if (tractionFrames >= 3)
+                        {
+                            tractionBool = false;
+                            isChangingDirTraction = false;
+                            tractionFrames = 0;
+                        }
+                    }
+
+                    isRunning = false;
+                    framesHeld = 0;
                 }
 
-                if (speed > 0 && tractionBool) speed -= tractionValue;
-                else if (speed <= 0 && tractionBool)
+                if ((prevThreshold > joystickThresholdMin && Axis.x < -joystickThresholdMin ||
+                    prevThreshold < -joystickThresholdMin && Axis.x > joystickThresholdMin)
+                    && !isDashing)
+                // Corrector para cambio de lado (reset a la variable contador)
                 {
-                    speed = 0;
-                    tractionFrames++;
-
-                    if (tractionFrames >= 3)
+                    framesHeld = 0;
+                    if (isRunning) // para la animacion quizas se debá de fusionar en una o mirar una alternativa.
                     {
-                        tractionBool = false;
-                        isChangingDirTraction = false;
-                        tractionFrames = 0;
+                        isChangingDirTraction = true;
+                        tractionBool = true;
                     }
                 }
 
-                isRunning = false;
-                framesHeld = 0;
-            }
+                if (Mathf.Abs(Axis.x) > joystickThresholdMin) prevThreshold = Axis.x;
+                else prevThreshold = 0;
 
-            if ((prevThreshold > joystickThresholdMin && Axis.x < -joystickThresholdMin ||
-                prevThreshold < -joystickThresholdMin && Axis.x > joystickThresholdMin)
-                && !isDashing)
-            // Corrector para cambio de lado (reset a la variable contador)
+                speedAirOneTime = false;
+            }
+            else if (!cb.isGrounded) // Aerial
             {
-                framesHeld = 0;
-                if (isRunning) // para la animacion quizas se debá de fusionar en una o mirar una alternativa.
+                if (Mathf.Abs(Axis.x) > joystickThresholdMin && !speedAirOneTime)
                 {
-                    isChangingDirTraction = true;
-                    tractionBool = true;
+                    if ((speed == walkSpeed || speed == runSpeed || isDashing) && isJumping && !isDJumping) speed = airFastSpeed;
+                    else speed = airSlowSpeed;
+
+                    speedAirOneTime = true;
                 }
             }
-
-            if (Mathf.Abs(Axis.x) > joystickThresholdMin) prevThreshold = Axis.x;
-            else prevThreshold = 0;
-
-            speedAirOneTime = false;
-        }
-        else if (!cb.isGrounded) // Aerial
-        {
-            if (Mathf.Abs(Axis.x) > joystickThresholdMin && !speedAirOneTime)
-            {
-                if ((speed == walkSpeed || speed == runSpeed || isDashing) && isJumping && !isDJumping) speed = airFastSpeed;
-                else speed = airSlowSpeed;
-
-                speedAirOneTime = true;
-            }
-        }
+        //}
     }
+
+    void Crouch()
+    {
+        if (Axis.y < -0.5f) isCrouching = true;
+        else isCrouching = false;
+    }
+
 
     void Jump()
     {
@@ -238,9 +258,61 @@ public class MovementBasis : MonoBehaviour
         if (!cb.isGrounded)
         {
             gravity += weight * 9.81f * Time.deltaTime;
-            if (gravity >= maxGravity) gravity = maxGravity;
+            if (gravity >= maxGravity && !isFastFall) gravity = maxGravity;
+            else if (isFastFall) gravity = maxGravity + 5;
         }
         else gravity = 0;
+    }
+
+    void FastFall()
+    {
+        if (!cb.isGrounded && verticalSpeed < 0)
+        {
+            if (Axis.y < -joystickThresholdMin)
+            {
+                framesHeldY++;
+
+                if (Axis.y <= -joystickThresholdMax)
+                {
+                    if (framesHeldY <= requiredStickTimeY && !isDownAxisY)
+                        isFastFall = true;
+                }
+            }
+            //else isDownAxisY = false;
+        }
+    }
+
+   void FallPlatform()
+   {
+        if (Axis.y < -joystickThresholdMin)
+        {
+            if (Axis.y <= -joystickThresholdMax)
+            {
+                if (cb.raycastHitPlatform)
+                {
+                    if (!cb.isGrounded && verticalSpeed < 0) // obligar a apretar otra vez si en suelo.
+                                                             // diferenciar cuando aire y cuando suelo.
+                    {
+                        canFallPlatform = true;
+                        cb.isGrounded = false;
+                        cb.raycastHitPlatform = false;
+                    }
+                }
+                //            if (cb.raycastHitPlatform && cb.isGrounded)
+                //            {
+                //                cb.isGrounded = false;
+                //                cb.raycastHitPlatform = false;
+                //                canFallPlatform = true;
+                //                isDownAxisY = true;
+                //            }
+            }
+        }
+        
+    //    else
+    //    {
+    //        canFallPlatform = false;
+    //        isDownAxisY = false;
+    //    }
     }
 
     public void AfterLanding()
@@ -267,14 +339,24 @@ public class MovementBasis : MonoBehaviour
         counterJump = 0;
         counterSwitchJump = 0;
         isJumping = false;
+
+        // Fast fall
+        isFastFall = false;
+        framesHeldY = 0;
+
+        // Fall Platform
+        canFallPlatform = false;
     }
 
     void Movement()
     {
         HorzitonalMovement();
+        Crouch();
         Jump();
         Gravity();
-
+        FallPlatform();
+        FastFall();
+        
         verticalSpeed = sTop - gravity;
 
         if (cb.isGrounded)
