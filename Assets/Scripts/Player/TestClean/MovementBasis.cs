@@ -275,9 +275,12 @@ public class MovementBasis : MonoBehaviour
                 if (Axis.y <= -joystickThresholdMax)
                 {
                     if (framesHeldY <= requiredStickTimeY && !isDownAxisY)
+                    {
                         isFastFall = true;
+                    }
                 }
             }
+            else if (!isFastFall) framesHeldY = 0;
             //else isDownAxisY = false;
         }
     }
@@ -290,9 +293,12 @@ public class MovementBasis : MonoBehaviour
             {
                 if (cb.raycastHitPlatform)
                 {
-                    if (!cb.isGrounded && verticalSpeed < 0) // obligar a apretar otra vez si en suelo.
+                    if ((!cb.isGrounded && verticalSpeed < 0) ||
+                        cb.isGrounded)                       // obligar a apretar otra vez si en suelo.
                                                              // diferenciar cuando aire y cuando suelo.
                     {
+                        if (cb.isGrounded) isDownAxisY = true;
+
                         canFallPlatform = true;
                         cb.isGrounded = false;
                         cb.raycastHitPlatform = false;
@@ -307,12 +313,23 @@ public class MovementBasis : MonoBehaviour
                 //            }
             }
         }
-        
-    //    else
-    //    {
-    //        canFallPlatform = false;
-    //        isDownAxisY = false;
-    //    }
+        else
+        {
+            isDownAxisY = false;
+
+            if (isFastFall) // Esto hay que probarlo. La idea es que con esto cuando deje de pulsar la palanca al hacer un fastfall, no atraviese.
+            {
+                canFallPlatform = false;
+                //cb.isGrounded = true;
+                //cb.raycastHitPlatform = true;
+            }
+        }
+
+        //    else
+        //    {
+        //        canFallPlatform = false;
+        //        isDownAxisY = false;
+        //    }
     }
 
     public void AfterLanding()

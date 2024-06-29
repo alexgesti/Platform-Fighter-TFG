@@ -93,6 +93,17 @@
                 },
                 {
                     "name": "",
+                    "id": "e1721c80-9438-4fef-9ae6-a0270ab4acf9",
+                    "path": "<HID::BDA NSW wired controller>/stick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "907fdc8a-de70-4fe4-8312-0939202f0678",
                     "path": "<GameCubeController>/leftStick",
                     "interactions": "",
@@ -150,6 +161,28 @@
                     "name": "",
                     "id": "0d91ec1c-fab4-468d-82f2-6255a85f57c7",
                     "path": "<SwitchProControllerHID>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "78f30131-f096-4d85-85f8-c206b50f73f0",
+                    "path": "<HID::BDA NSW wired controller>/button4",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "56c2de69-78e8-41f9-8d51-efe212a0fc6d",
+                    "path": "<HID::BDA NSW wired controller>/trigger",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
