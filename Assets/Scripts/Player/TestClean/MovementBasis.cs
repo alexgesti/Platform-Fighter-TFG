@@ -232,6 +232,9 @@ public class MovementBasis : MonoBehaviour
                 sTop = speedFullHop;
                 djOneTime = true;
                 speedAirOneTime = false;
+
+                isFastFall = false;
+                framesHeldY = 0;
             }
         }
 
@@ -281,7 +284,6 @@ public class MovementBasis : MonoBehaviour
                 }
             }
             else if (!isFastFall) framesHeldY = 0;
-            //else isDownAxisY = false;
         }
     }
 
@@ -294,8 +296,7 @@ public class MovementBasis : MonoBehaviour
                 if (cb.raycastHitPlatform)
                 {
                     if ((!cb.isGrounded && verticalSpeed < 0) ||
-                        cb.isGrounded)                       // obligar a apretar otra vez si en suelo.
-                                                             // diferenciar cuando aire y cuando suelo.
+                        cb.isGrounded)
                     {
                         if (cb.isGrounded) isDownAxisY = true;
 
@@ -304,32 +305,15 @@ public class MovementBasis : MonoBehaviour
                         cb.raycastHitPlatform = false;
                     }
                 }
-                //            if (cb.raycastHitPlatform && cb.isGrounded)
-                //            {
-                //                cb.isGrounded = false;
-                //                cb.raycastHitPlatform = false;
-                //                canFallPlatform = true;
-                //                isDownAxisY = true;
-                //            }
             }
         }
         else
         {
             isDownAxisY = false;
 
-            if (isFastFall) // Esto hay que probarlo. La idea es que con esto cuando deje de pulsar la palanca al hacer un fastfall, no atraviese.
-            {
+            if (!cb.isTouchingPlatform) // Si se pone justo en el medio al dejar de pulsar, no atraviesa y se queda estancado el suelo.
                 canFallPlatform = false;
-                //cb.isGrounded = true;
-                //cb.raycastHitPlatform = true;
-            }
         }
-
-        //    else
-        //    {
-        //        canFallPlatform = false;
-        //        isDownAxisY = false;
-        //    }
     }
 
     public void AfterLanding()
@@ -363,6 +347,7 @@ public class MovementBasis : MonoBehaviour
 
         // Fall Platform
         canFallPlatform = false;
+        isDownAxisY = false;
     }
 
     void Movement()

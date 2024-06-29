@@ -143,7 +143,7 @@ public class AnimationController : MonoBehaviour
             fOneTime = true;
         }
         else if (fastFall.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("spark_signal") &&
-            fastFall.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && player.cb.isGrounded)
+            fastFall.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !player.isFastFall)
         {
             fastFall.transform.position = new Vector3(0, -10, 0);
             fastFall.GetComponent<Animator>().SetBool("fastfall", false);

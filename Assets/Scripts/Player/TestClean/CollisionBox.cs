@@ -8,6 +8,7 @@ public class CollisionBox : MonoBehaviour
     MeshCollider meshCollider;
 
     [HideInInspector] public bool isGrounded;
+    [HideInInspector] public bool isTouchingPlatform;
     MovementBasis player;
 
     [Header("RaycastPosition")]
@@ -102,12 +103,10 @@ public class CollisionBox : MonoBehaviour
                 raycastHitPlatform = false;
                 raycastHitFloor = false;
             }
-
-            //Debug.Log(hit.collider);
         }
         else rayHitObj = baseRayHitObj;
 
-        Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistance, Color.red); //probar las colisiones de caida.raycast bien? o es colision ?
+        Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistance, Color.red);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -128,6 +127,8 @@ public class CollisionBox : MonoBehaviour
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
             && player.verticalSpeed <= 0 && !player.canFallPlatform)
         {
+            isTouchingPlatform = true;
+
             isGrounded = true;
 
             // Pos correction
@@ -156,6 +157,8 @@ public class CollisionBox : MonoBehaviour
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
             && player.verticalSpeed <= 0 && !player.canFallPlatform)
         {
+            isTouchingPlatform = true;
+
             isGrounded = true;
 
             // Pos correction
@@ -163,6 +166,8 @@ public class CollisionBox : MonoBehaviour
             new Vector3(transform.position.x,
             other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
             transform.position.z);
+
+            if (player.isFastFall) player.AfterLanding();
         }
     }
 
@@ -175,6 +180,8 @@ public class CollisionBox : MonoBehaviour
 
         if (other.gameObject.tag == "PlatformF")
         {
+            isTouchingPlatform = false;
+
             isGrounded = false;
         }
     }
