@@ -15,7 +15,6 @@ public class MovementBasis : MonoBehaviour
     [Header("Tapping Horizontal")]
     public float requiredStickTimeX;
     float framesHeld, prevThreshold;
-    bool isRunning;
 
     [Header("Movement Horizontal")]
     [Header("Speed")]
@@ -23,6 +22,7 @@ public class MovementBasis : MonoBehaviour
     public float runSpeed;
     [HideInInspector] public float speed;
     [HideInInspector] public float finalspeed;
+    bool isRunning;
 
     [Header("Dash")]
     public float dashSpeed;

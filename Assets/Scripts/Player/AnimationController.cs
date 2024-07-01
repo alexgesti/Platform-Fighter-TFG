@@ -92,6 +92,8 @@ public class AnimationController : MonoBehaviour
             anim.SetBool("isTraction", false);
             anim.SetBool("isDirectionChanged", false);
             anim.SetBool("isGonnaRun", false);
+
+            dOneTime = false;
         }
         else if (player.verticalSpeed < 0 && !player.cb.isGrounded) // Fall 
         {
@@ -102,6 +104,8 @@ public class AnimationController : MonoBehaviour
             anim.SetBool("isTraction", false);
             anim.SetBool("isDirectionChanged", false);
             anim.SetBool("isGonnaRun", false);
+
+            dOneTime = false;
         }
         else if (player.tractionBool && player.isChangingDirTraction) // Change direction (traction)
         {
