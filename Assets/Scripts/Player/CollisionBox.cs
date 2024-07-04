@@ -16,8 +16,7 @@ public class CollisionBox : MonoBehaviour
     [HideInInspector] public static float maxDistance;
     [HideInInspector] public bool raycastHitFloor;
     [HideInInspector] public bool raycastHitPlatform;
-    Transform rayHitObj;
-    public Transform baseRayHitObj;
+    Collider raycastHitCollider;
 
     // Start is called before the first frame update
     void Start()
@@ -74,101 +73,91 @@ public class CollisionBox : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (rayHitObj != null) maxDistance = transform.position.y - 
-                (rayHitObj.position.y + rayHitObj.localScale.y / 2);
-
+        maxDistance = Mathf.Infinity;
+        
         if (Physics.Raycast(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC, out hit, maxDistance))
         {
-            if (hit.collider)
-                if (hit.collider.gameObject.tag == "PlatformF"
-                    || hit.collider.gameObject.tag == "Floor")
-                    rayHitObj = hit.collider.transform;
-
-            if (hit.collider.gameObject.tag == "Floor")
+            if (hit.collider.gameObject != gameObject)
             {
-                raycastHitFloor = true;
-                raycastHitPlatform = false;
-                rayHitObj = hit.collider.transform;
-            }
+                float distance = Vector3.Distance(transform.position - new Vector3(0, transform.localScale.y / 2, 0), hit.point);
+                if (distance < maxDistance) maxDistance = distance;
 
-            if (hit.collider.gameObject.tag == "PlatformF")
-            {
-                raycastHitPlatform = true;
-                raycastHitFloor = false;
-                rayHitObj = hit.collider.transform;
-            }
+                raycastHitCollider = hit.collider;
 
-            if (hit.collider.gameObject.tag != "PlatformF" && hit.collider.gameObject.tag != "Floor")
-            {
-                raycastHitPlatform = false;
-                raycastHitFloor = false;
+                if (hit.collider.gameObject.tag == "Floor")
+                {
+                    raycastHitFloor = true;
+                    raycastHitPlatform = false;
+                }
+
+                if (hit.collider.gameObject.tag == "PlatformF")
+                {
+                    raycastHitPlatform = true;
+                    raycastHitFloor = false;
+                }
+
+                if (hit.collider.gameObject.tag != "PlatformF" && hit.collider.gameObject.tag != "Floor")
+                {
+                    raycastHitPlatform = false;
+                    raycastHitFloor = false;
+                }
             }
         }
-        else rayHitObj = baseRayHitObj;
-
+        else
+        {
+            raycastHitFloor = false;
+            raycastHitPlatform = false;
+            raycastHitCollider = null;
+        }
+        
         Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistance, Color.red);
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) // Debe de detectar cuando no esta tocando el mismo suelo.
     {
-        if (other.gameObject.tag == "Floor" && raycastHitFloor)
+        if (other.gameObject.tag == "Floor" && raycastHitFloor
+            && other == raycastHitCollider)
         {
             isGrounded = true;
-
-            // Pos correction
-            transform.position =
-            new Vector3(transform.position.x,
-            other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
-            transform.position.z);
-
+            CorrectionPositionVertical(other);
             player.AfterLanding();
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
-            && player.verticalSpeed <= 0 && !player.canFallPlatform)
+            && player.verticalSpeed <= 0 && !player.canFallPlatform
+            && other == raycastHitCollider)
         {
             isTouchingPlatform = true;
-
             isGrounded = true;
-
-            // Pos correction
-            transform.position =
-            new Vector3(transform.position.x,
-            other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
-            transform.position.z);
-
+            CorrectionPositionVertical(other);
             player.AfterLanding();
         }
+
+        if (other.gameObject.tag == "Floor" && other != raycastHitCollider)
+            CorrectionPositionHorizontal(other);
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "Floor" && raycastHitFloor)
+        if (other.gameObject.tag == "Floor" && raycastHitFloor
+            && other == raycastHitCollider)
         {
             isGrounded = true;
-
-            // Pos correction
-            transform.position =
-            new Vector3(transform.position.x,
-            other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
-            transform.position.z);
+            CorrectionPositionVertical(other);
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
-            && player.verticalSpeed <= 0 && !player.canFallPlatform)
+            && player.verticalSpeed <= 0 && !player.canFallPlatform
+            && other == raycastHitCollider)
         {
             isTouchingPlatform = true;
-
             isGrounded = true;
-
-            // Pos correction
-            transform.position =
-            new Vector3(transform.position.x,
-            other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
-            transform.position.z);
-
+            CorrectionPositionVertical(other);
             if (player.isFastFall) player.AfterLanding();
         }
+
+        if (other.gameObject.tag == "Floor" && other != raycastHitCollider)
+            CorrectionPositionHorizontal(other);
     }
 
     private void OnTriggerExit(Collider other)
@@ -184,5 +173,24 @@ public class CollisionBox : MonoBehaviour
 
             isGrounded = false;
         }
+    }
+
+    void CorrectionPositionVertical(Collider other)
+    {
+        transform.position =
+        new Vector3(transform.position.x,
+        other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
+        transform.position.z);
+    }
+
+    void CorrectionPositionHorizontal(Collider other)
+    {
+        Vector3 contactPoint = other.ClosestPoint(transform.position);
+        float playerWidth = transform.localScale.x / 2;
+
+        if (contactPoint.x > transform.position.x)
+            transform.position = new Vector3(contactPoint.x - playerWidth, transform.position.y, transform.position.z);
+        else
+            transform.position = new Vector3(contactPoint.x + playerWidth, transform.position.y, transform.position.z);
     }
 }
