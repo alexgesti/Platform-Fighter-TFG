@@ -18,19 +18,25 @@ public class CollisionBox : MonoBehaviour
     [HideInInspector] public bool raycastHitPlatform;
     Collider raycastHitCollider;
 
+    [Header("RaycastWall")]
+    public Vector3[] originRaycasts;
+    public float maxDistanceW;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
         CreatingCollision();
 
         player = GetComponent<MovementBasis>();
-        maxDistance = 5;
     }
 
     // Update is called once per frame
     void Update()
     {
         RaycastGround();
+        if (player.isTouchingWall) RaycastHorizontal();
     }
 
     void CreatingCollision()
@@ -113,6 +119,29 @@ public class CollisionBox : MonoBehaviour
         Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistance, Color.red);
     }
 
+    void RaycastHorizontal()
+    {
+        player.isTouchingWall = false;
+
+        foreach (Vector3 origin in originRaycasts)
+        {
+            RaycastHit hitW;
+
+            if (Physics.Raycast(origin + transform.position, new Vector3(Mathf.Sign(player.Axis.x) * Mathf.Ceil(Mathf.Abs(player.Axis.x)), 0, 0), out hitW, maxDistanceW))
+            {
+                if (hitW.collider.gameObject != gameObject)
+                {
+                    if (hitW.collider.gameObject.tag == "Floor")
+                    {
+                        player.isTouchingWall = true;
+                    }
+                }
+            }
+
+            Debug.DrawRay(origin + transform.position, new Vector3(Mathf.Sign(player.Axis.x) * Mathf.Ceil(Mathf.Abs(player.Axis.x)), 0, 0) * maxDistanceW, Color.red);
+        }
+    }
+
     private void OnTriggerEnter(Collider other) // Debe de detectar cuando no esta tocando el mismo suelo.
     {
         if (other.gameObject.tag == "Floor" && raycastHitFloor
@@ -135,6 +164,11 @@ public class CollisionBox : MonoBehaviour
 
         if (other.gameObject.tag == "Floor" && other != raycastHitCollider)
             CorrectionPositionHorizontal(other);
+
+        if (other.gameObject.tag == "Player" && isGrounded)
+        {
+            other.GetComponent<Rigidbody>().AddForce(new Vector3(player.Axis.x, 0, 0) * player.finalspeed, ForceMode.Force);
+        }
     }
 
     private void OnTriggerStay(Collider other)
@@ -158,6 +192,12 @@ public class CollisionBox : MonoBehaviour
 
         if (other.gameObject.tag == "Floor" && other != raycastHitCollider)
             CorrectionPositionHorizontal(other);
+
+        if (other.gameObject.tag == "Player" && isGrounded)
+        {
+            Debug.Log("Yrah");
+            other.GetComponent<Rigidbody>().AddForce(new Vector3(player.Axis.x, 0, 0) * 5, ForceMode.Impulse);
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -188,9 +228,15 @@ public class CollisionBox : MonoBehaviour
         Vector3 contactPoint = other.ClosestPoint(transform.position);
         float playerWidth = transform.localScale.x / 2;
 
-        if (contactPoint.x > transform.position.x)
-            transform.position = new Vector3(contactPoint.x - playerWidth, transform.position.y, transform.position.z);
-        else
-            transform.position = new Vector3(contactPoint.x + playerWidth, transform.position.y, transform.position.z);
+        if (contactPoint.x >= transform.position.x)
+        {
+            transform.position = new Vector3(contactPoint.x - playerWidth - 0.01f, transform.position.y, transform.position.z);
+            player.isTouchingWall = true;
+        }
+        else if (contactPoint.x <= transform.position.x)
+        {
+            transform.position = new Vector3(contactPoint.x + playerWidth + 0.01f, transform.position.y, transform.position.z);
+            player.isTouchingWall = true;
+        }
     }
 }

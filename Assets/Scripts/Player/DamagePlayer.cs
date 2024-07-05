@@ -11,6 +11,7 @@ public class DamagePlayer : MonoBehaviour
     [HideInInspector] public bool ko;
 
     // Text
+    public bool isSandBag;
     public Text p1Text;
     public Animator p1Anim;
     public Text p1bText;
@@ -26,22 +27,25 @@ public class DamagePlayer : MonoBehaviour
 
     private void Update()
     {
-        if (ko)
+        if (!isSandBag)
         {
-            p1Anim.SetBool("hit", true);
-            p1bAnim.SetBool("hit", true);
-            damage += 10;
-            if (damage >= 999) damage = 999;
+            if (ko)
+            {
+                p1Anim.SetBool("hit", true);
+                p1bAnim.SetBool("hit", true);
+                damage += 10;
+                if (damage >= 999) damage = 999;
 
-            if (damage < 200) p1Text.color = p1Text.color - new Color(0.037f, 0.085f, 0.085f, 0f);
+                if (damage < 200) p1Text.color = p1Text.color - new Color(0.037f, 0.085f, 0.085f, 0f);
 
-            p1Text.text = damage + "%";
-            p1bText.text = damage + "%";
-            ko = false;
+                p1Text.text = damage + "%";
+                p1bText.text = damage + "%";
+                ko = false;
+            }
+
+            if (this.p1Anim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1Anim.SetBool("hit", false);
+            if (this.p1bAnim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1bAnim.SetBool("hit", false);
         }
-
-        if (this.p1Anim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1Anim.SetBool("hit", false);
-        if (this.p1bAnim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1bAnim.SetBool("hit", false);
     }
 
     // Update is called once per frame

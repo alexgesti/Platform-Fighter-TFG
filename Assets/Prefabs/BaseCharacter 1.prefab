@@ -31,7 +31,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3570841198685237750}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -110,11 +110,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   input: {fileID: 11400000, guid: 34aff19d0d5e46a448a53055481f689e, type: 2}
   Axis: {x: 0, y: 0}
+  isTouchingWall: 0
   joystickThresholdMin: 0.2
   joystickThresholdMax: 0.9
   requiredStickTimeX: 4
-  walkSpeed: 5
-  runSpeed: 10
+  walkSpeed: 7
+  runSpeed: 12
   speed: 0
   finalspeed: 0
   dashSpeed: 11
@@ -154,7 +155,11 @@ MonoBehaviour:
   directionC: {x: 0, y: -1, z: 0}
   raycastHitFloor: 0
   raycastHitPlatform: 0
-  baseRayHitObj: {fileID: 0}
+  originRaycasts:
+  - {x: 0, y: 0.85, z: 0}
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: -0.85, z: 0}
+  maxDistanceW: 0.55
 --- !u!114 &8792591157396650460
 MonoBehaviour:
   m_ObjectHideFlags: 0

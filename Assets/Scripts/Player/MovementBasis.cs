@@ -7,6 +7,7 @@ public class MovementBasis : MonoBehaviour
     [Header("Stick Controlls")]
     public InputReader input;
     [HideInInspector] public Vector2 Axis;
+    [HideInInspector] public bool isTouchingWall;
 
     [Header("Tapping Register")]
     public float joystickThresholdMin;
@@ -395,6 +396,8 @@ public class MovementBasis : MonoBehaviour
         {
             finalspeed = Axis.x * speed;
         }
+
+        if (isTouchingWall) finalspeed = 0;
 
         Vector3 movement = new Vector3(finalspeed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
 

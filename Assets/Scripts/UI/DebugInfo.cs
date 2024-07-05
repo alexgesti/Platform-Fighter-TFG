@@ -7,26 +7,29 @@ public class DebugInfo : MonoBehaviour
 {
     public Text framerateInfo;
 
+    [Header("Frame by frame")] 
     bool stop;
     bool frameByFrame;
     public Text frameByFrameInfo;
 
+    [Header("Positions")]
     public Text playerPos;
-    public Text collPos;
-
+    //public Text collPos;
     public Transform player;
-    public Transform collision;
+    //public Transform collision;
 
-    public LineRenderer lineCollision, lineRaycast;
-    [HideInInspector] public static bool activeColl;
+    [Header("Dibujado de colisiones")]
+    public List<GameObject> gameObjects;
+    List<Material> originalMaterials;
+    public Material collisionMaterial;
+    //public LineRenderer lineCollision, lineRaycast;
+    bool activeColl;
 
     public DamagePlayer dScript; 
 
     private void Awake()
     {
         Application.targetFrameRate = 60;
-
-        dScript = GameObject.FindGameObjectWithTag("Player").GetComponent<DamagePlayer>(); //Add un "if exists p1"
     }
 
     // Start is called before the first frame update
@@ -35,19 +38,45 @@ public class DebugInfo : MonoBehaviour
         stop = false;
         frameByFrame = false;
 
-        lineCollision.positionCount = 5;
-        lineCollision.startWidth = 0.1f;
-        lineCollision.endWidth = 0.1f;
-        lineCollision.material = new Material(Shader.Find("Sprites/Default"));
-        lineCollision.startColor = Color.blue;
-        lineCollision.endColor = Color.blue;
+        gameObjects = new List<GameObject>();
 
-        lineRaycast.positionCount = 2;
-        lineRaycast.startWidth = 0.05f;
-        lineRaycast.endWidth = 0.05f;
-        lineRaycast.material = new Material(Shader.Find("Sprites/Default"));
-        lineRaycast.startColor = Color.red;
-        lineRaycast.endColor = Color.red;
+        GameObject[] floors = GameObject.FindGameObjectsWithTag("Floor");
+        gameObjects.AddRange(floors);
+
+        GameObject[] platforms = GameObject.FindGameObjectsWithTag("PlatformF");
+        gameObjects.AddRange(platforms);
+
+        GameObject[] allPlayers = GameObject.FindGameObjectsWithTag("Player");
+        List<GameObject> players = new List<GameObject>();
+        for (int i = 0; i < allPlayers.Length; i++)
+        {
+            if (allPlayers[i].GetComponent<MeshCollider>() != null)
+            {
+                players.Add(allPlayers[i]);
+            }
+        }
+        gameObjects.AddRange(players);
+
+
+        originalMaterials = new List<Material>();
+
+        foreach (GameObject obj in gameObjects)
+        {
+            if (obj.CompareTag("Floor") || obj.CompareTag("PlatformF"))
+            {
+                originalMaterials.Add(obj.GetComponent<MeshRenderer>().material);
+            }
+
+            if (obj.CompareTag("Player"))
+            {
+                obj.GetComponent<LineRenderer>().positionCount = 5;
+                obj.GetComponent<LineRenderer>().startWidth = 0.1f;
+                obj.GetComponent<LineRenderer>().endWidth = 0.1f;
+                obj.GetComponent<LineRenderer>().material = new Material(Shader.Find("Sprites/Default"));
+                obj.GetComponent<LineRenderer>().startColor = Color.blue;
+                obj.GetComponent<LineRenderer>().endColor = Color.blue;
+            }
+        }
     }
     
     // Update is called once per frame
@@ -81,39 +110,61 @@ public class DebugInfo : MonoBehaviour
 
         // Positions F2
         playerPos.text = string.Format("P: x:{0:0.000} y:{1:0.000} z:{2:0.000}", player.position.x, player.position.y, player.position.z);
-        collPos.text = string.Format("C: x:{0:0.000} y:{1:0.000} z:{2:0.000}", collision.position.x, collision.position.y, collision.position.z);
 
         if (Input.GetKeyDown(KeyCode.F2)) activeColl = !activeColl;
         if (activeColl)
         {
-            lineCollision.SetPosition(0, CollisionBox.layer[0] + player.position);
-            lineCollision.SetPosition(1, CollisionBox.layer[1] + player.position);
-            lineCollision.SetPosition(2, CollisionBox.layer[4] + player.position);
-            lineCollision.SetPosition(3, CollisionBox.layer[3] + player.position);
-            lineCollision.SetPosition(4, CollisionBox.layer[0] + player.position);
+            foreach (GameObject obj in gameObjects)
+            {
+                if (obj.CompareTag("Floor") || obj.CompareTag("PlatformF"))
+                {
+                    obj.GetComponent<MeshRenderer>().material = collisionMaterial;
+                }
 
-            lineRaycast.SetPosition(0, player.position - new Vector3(0, player.localScale.y / 2, 0)); 
-            lineRaycast.SetPosition(1, player.position - new Vector3(0, CollisionBox.maxDistance, 0)); 
+                if (obj.CompareTag("Player"))
+                {
+                    obj.GetComponent<LineRenderer>().enabled = true;
+
+                    obj.GetComponent<LineRenderer>().SetPosition(0, CollisionBox.layer[0] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(1, CollisionBox.layer[1] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(2, CollisionBox.layer[4] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(3, CollisionBox.layer[3] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(4, CollisionBox.layer[0] + obj.transform.position);
+                }
+            }
         }
         else
         {
-            lineCollision.SetPosition(0, Vector3.zero);
-            lineCollision.SetPosition(1, Vector3.zero);
-            lineCollision.SetPosition(2, Vector3.zero);
-            lineCollision.SetPosition(3, Vector3.zero);
-            lineCollision.SetPosition(4, Vector3.zero);
+            int indexG = 0;
+            
+            foreach (GameObject obj in gameObjects)
+            {
+                if (obj.CompareTag("Floor") || obj.CompareTag("PlatformF"))
+                {
+                    int indexM = 0;
 
-            lineRaycast.SetPosition(0, Vector3.zero);
-            lineRaycast.SetPosition(1, Vector3.zero);
+                    foreach (Material returnMaterial in originalMaterials)
+                    {
+                        if (indexG == indexM) obj.GetComponent<MeshRenderer>().material = returnMaterial;
+
+                        indexM++;
+                    }
+                    
+                }
+
+                if (obj.CompareTag("Player"))
+                {
+                    obj.GetComponent<LineRenderer>().enabled = false;
+                }
+
+                indexG++;
+            }
         }
 
         // Add damage F3
         if (Input.GetKeyDown(KeyCode.F3)) dScript.ko = true;
 
-        // Put player in air to base
-        if (Input.GetKeyDown(KeyCode.F4)) dScript.transform.position = new Vector3(0, 10, 0);
-
         // Put player in air to platform
-        if (Input.GetKeyDown(KeyCode.F5)) dScript.transform.position = new Vector3(4.45f, 15, 0);
+        if (Input.GetKeyDown(KeyCode.F4)) dScript.transform.position = new Vector3(4.45f, 15, 0);
     }
 }
