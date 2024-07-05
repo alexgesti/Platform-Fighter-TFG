@@ -7839,6 +7839,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SandBag
       objectReference: {fileID: 0}
+    - target: {fileID: 551113386897978902, guid: 2ddf5ee93f1a9684289c492fa979258c, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2037922590426978553, guid: 2ddf5ee93f1a9684289c492fa979258c, type: 3}
       propertyPath: maxGravity
       value: 30
