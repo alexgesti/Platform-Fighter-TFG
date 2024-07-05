@@ -166,5 +166,8 @@ public class DebugInfo : MonoBehaviour
 
         // Put player in air to platform
         if (Input.GetKeyDown(KeyCode.F4)) dScript.transform.position = new Vector3(4.45f, 15, 0);
+
+        // Exit
+        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
     }
 }

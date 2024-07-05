@@ -22,7 +22,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: maxGravity
-      value: 40
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: airFastSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: airSlowSpeed
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: dashDuration
@@ -38,6 +46,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: speedShortHop
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: tractionValue
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
@@ -107,6 +119,14 @@ PrefabInstance:
     - target: {fileID: 6037488472017642513, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8602820238763044214, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Constraints
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 8792591157396650460, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: isSandBag
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1944690707397601332, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}

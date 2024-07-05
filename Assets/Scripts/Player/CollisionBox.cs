@@ -71,7 +71,7 @@ public class CollisionBox : MonoBehaviour
             meshCollider = GetComponent<MeshCollider>();
             meshCollider.sharedMesh = mesh;
             meshCollider.convex = true;
-            meshCollider.isTrigger = true;
+            //meshCollider.isTrigger = true;
         }
     }
 
@@ -142,65 +142,54 @@ public class CollisionBox : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other) // Debe de detectar cuando no esta tocando el mismo suelo.
+    private void OnCollisionEnter(Collision other) // Debe de detectar cuando no esta tocando el mismo suelo.
     {
         if (other.gameObject.tag == "Floor" && raycastHitFloor
-            && other == raycastHitCollider)
+            && other.collider == raycastHitCollider)
         {
             isGrounded = true;
-            CorrectionPositionVertical(other);
+            CorrectionPositionVertical(other.collider);
             player.AfterLanding();
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
             && player.verticalSpeed <= 0 && !player.canFallPlatform
-            && other == raycastHitCollider)
+            && other.collider == raycastHitCollider)
         {
             isTouchingPlatform = true;
             isGrounded = true;
-            CorrectionPositionVertical(other);
+            CorrectionPositionVertical(other.collider);
             player.AfterLanding();
         }
 
-        if (other.gameObject.tag == "Floor" && other != raycastHitCollider)
-            CorrectionPositionHorizontal(other);
-
-        if (other.gameObject.tag == "Player" && isGrounded)
-        {
-            other.GetComponent<Rigidbody>().AddForce(new Vector3(player.Axis.x, 0, 0) * player.finalspeed, ForceMode.Force);
-        }
+        if (other.gameObject.tag == "Floor" && other.collider != raycastHitCollider)
+            CorrectionPositionHorizontal(other.collider);
     }
 
-    private void OnTriggerStay(Collider other)
+    private void OnCollisionStay(Collision other)
     {
         if (other.gameObject.tag == "Floor" && raycastHitFloor
-            && other == raycastHitCollider)
+            && other.collider == raycastHitCollider)
         {
             isGrounded = true;
-            CorrectionPositionVertical(other);
+            CorrectionPositionVertical(other.collider);
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
             && player.verticalSpeed <= 0 && !player.canFallPlatform
-            && other == raycastHitCollider)
+            && other.collider == raycastHitCollider)
         {
             isTouchingPlatform = true;
             isGrounded = true;
-            CorrectionPositionVertical(other);
+            CorrectionPositionVertical(other.collider);
             if (player.isFastFall) player.AfterLanding();
         }
 
-        if (other.gameObject.tag == "Floor" && other != raycastHitCollider)
-            CorrectionPositionHorizontal(other);
-
-        if (other.gameObject.tag == "Player" && isGrounded)
-        {
-            Debug.Log("Yrah");
-            other.GetComponent<Rigidbody>().AddForce(new Vector3(player.Axis.x, 0, 0) * 5, ForceMode.Impulse);
-        }
+        if (other.gameObject.tag == "Floor" && other.collider != raycastHitCollider)
+            CorrectionPositionHorizontal(other.collider);
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnCollisionExit(Collision other)
     {
         if (other.gameObject.tag == "Floor")
         {
