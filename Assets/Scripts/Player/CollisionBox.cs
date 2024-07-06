@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CollisionBox : MonoBehaviour
 {
-    [HideInInspector] public static Vector3[] layer = new Vector3[7]; // Principal detector
+    [HideInInspector] public static Vector3[] layer = new Vector3[10]; // Principal detector
     MeshCollider meshCollider;
 
     [HideInInspector] public bool isGrounded;
@@ -36,7 +36,7 @@ public class CollisionBox : MonoBehaviour
     void Update()
     {
         RaycastGround();
-        if (player.isTouchingWall) RaycastHorizontal();
+        ColliderController();
     }
 
     void CreatingCollision()
@@ -44,12 +44,17 @@ public class CollisionBox : MonoBehaviour
         if (layer != null && layer.Length >= 3)
         {
             // Creacion de los puntos y mesh.
+            
             layer[0] = new Vector3(0, transform.localScale.y, 0);
             layer[1] = new Vector3(transform.localScale.x / 2, 0, 0);
             layer[2] = new Vector3(0, 0, transform.localScale.z / 2);
             layer[3] = new Vector3(-transform.localScale.x / 2, 0, 0);
             layer[4] = new Vector3(0, -transform.localScale.y, 0);
-            layer[6] = new Vector3(0, 0, -transform.localScale.z / 2);
+            layer[5] = new Vector3(0, 0, -transform.localScale.z / 2);
+            layer[6] = new Vector3(transform.localScale.x / 3, transform.localScale.y / 1.5f, 0);
+            layer[7] = new Vector3(-transform.localScale.x / 3, transform.localScale.y / 1.5f, 0);
+            layer[8] = new Vector3(0, transform.localScale.y / 1.5f, transform.localScale.z / 3);
+            layer[9] = new Vector3(0, transform.localScale.y / 1.5f, -transform.localScale.z / 3);
 
             Mesh mesh = new Mesh();
             mesh.vertices = layer;
@@ -148,8 +153,12 @@ public class CollisionBox : MonoBehaviour
             && other.collider == raycastHitCollider)
         {
             isGrounded = true;
-            CorrectionPositionVertical(other.collider);
             player.AfterLanding();
+        }
+
+        if (other.gameObject.tag == "PlatformF" && player.verticalSpeed > 0)
+        {
+            Physics.IgnoreCollision(this.GetComponent<Collider>(), other.collider, true);
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
@@ -158,12 +167,11 @@ public class CollisionBox : MonoBehaviour
         {
             isTouchingPlatform = true;
             isGrounded = true;
-            CorrectionPositionVertical(other.collider);
             player.AfterLanding();
         }
 
         if (other.gameObject.tag == "Floor" && other.collider != raycastHitCollider)
-            CorrectionPositionHorizontal(other.collider);
+            RaycastHorizontal();
     }
 
     private void OnCollisionStay(Collision other)
@@ -172,7 +180,6 @@ public class CollisionBox : MonoBehaviour
             && other.collider == raycastHitCollider)
         {
             isGrounded = true;
-            CorrectionPositionVertical(other.collider);
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
@@ -181,12 +188,11 @@ public class CollisionBox : MonoBehaviour
         {
             isTouchingPlatform = true;
             isGrounded = true;
-            CorrectionPositionVertical(other.collider);
             if (player.isFastFall) player.AfterLanding();
         }
 
         if (other.gameObject.tag == "Floor" && other.collider != raycastHitCollider)
-            CorrectionPositionHorizontal(other.collider);
+            RaycastHorizontal();
     }
 
     private void OnCollisionExit(Collision other)
@@ -204,28 +210,11 @@ public class CollisionBox : MonoBehaviour
         }
     }
 
-    void CorrectionPositionVertical(Collider other)
+    void ColliderController() // Funciona, pero cuando baja, si no mantienes dado, se para, pero parece q no es mucho problema.
+                              // Lo mismo cuando tocas una plataforma del lado, se nota que la golpea (no debería ser así, pero no supone mucho problema -> mentira, hay que arreglarlo ya).
+                              // Al venir de abajo, se activa el collider cuando verticalspeed es inferior a 0, tambien hay que corregir esto.
     {
-        transform.position =
-        new Vector3(transform.position.x,
-        other.transform.position.y + other.transform.localScale.y / 2 + transform.localScale.y,
-        transform.position.z);
-    }
-
-    void CorrectionPositionHorizontal(Collider other)
-    {
-        Vector3 contactPoint = other.ClosestPoint(transform.position);
-        float playerWidth = transform.localScale.x / 2;
-
-        if (contactPoint.x >= transform.position.x)
-        {
-            transform.position = new Vector3(contactPoint.x - playerWidth - 0.01f, transform.position.y, transform.position.z);
-            player.isTouchingWall = true;
-        }
-        else if (contactPoint.x <= transform.position.x)
-        {
-            transform.position = new Vector3(contactPoint.x + playerWidth + 0.01f, transform.position.y, transform.position.z);
-            player.isTouchingWall = true;
-        }
+        if (player.canFallPlatform && raycastHitPlatform) Physics.IgnoreCollision(this.GetComponent<Collider>(), raycastHitCollider, true);
+        else Physics.IgnoreCollision(GetComponent<Collider>(), raycastHitCollider, false);
     }
 }

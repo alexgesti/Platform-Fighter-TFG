@@ -55,7 +55,7 @@ public class MovementBasis : MonoBehaviour
     public float maxFramesJump;
     float counterSwitchJump, counterJump;
     bool isJumping, isDJumping, canDJump;
-    public bool djOneTime;
+    [HideInInspector] public bool djOneTime;
 
     [Header("Gravity")]
     public float weight;
@@ -320,7 +320,7 @@ public class MovementBasis : MonoBehaviour
             {
                 isDownAxisY = false;
 
-                if (!cb.isTouchingPlatform) // Si se pone justo en el medio al dejar de pulsar, no atraviesa y se queda estancado el suelo.
+                if (!cb.isTouchingPlatform) 
                     canFallPlatform = false;
             }
         }
@@ -406,10 +406,9 @@ public class MovementBasis : MonoBehaviour
             finalspeed = Axis.x * speed;
         }
 
-        if (isTouchingWall) finalspeed = 0;
-
-        Vector3 movement = new Vector3(finalspeed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
-
-        transform.Translate(movement);
+        GetComponent<Rigidbody>().velocity = new Vector3(finalspeed, verticalSpeed, 0);
+        //Vector3 movement = new Vector3(finalspeed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
+        //
+        //transform.Translate(movement);
     }
 }

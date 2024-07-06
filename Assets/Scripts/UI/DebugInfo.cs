@@ -69,7 +69,7 @@ public class DebugInfo : MonoBehaviour
 
             if (obj.CompareTag("Player"))
             {
-                obj.GetComponent<LineRenderer>().positionCount = 5;
+                obj.GetComponent<LineRenderer>().positionCount = 7;
                 obj.GetComponent<LineRenderer>().startWidth = 0.1f;
                 obj.GetComponent<LineRenderer>().endWidth = 0.1f;
                 obj.GetComponent<LineRenderer>().material = new Material(Shader.Find("Sprites/Default"));
@@ -126,10 +126,12 @@ public class DebugInfo : MonoBehaviour
                     obj.GetComponent<LineRenderer>().enabled = true;
 
                     obj.GetComponent<LineRenderer>().SetPosition(0, CollisionBox.layer[0] + obj.transform.position);
-                    obj.GetComponent<LineRenderer>().SetPosition(1, CollisionBox.layer[1] + obj.transform.position);
-                    obj.GetComponent<LineRenderer>().SetPosition(2, CollisionBox.layer[4] + obj.transform.position);
-                    obj.GetComponent<LineRenderer>().SetPosition(3, CollisionBox.layer[3] + obj.transform.position);
-                    obj.GetComponent<LineRenderer>().SetPosition(4, CollisionBox.layer[0] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(1, CollisionBox.layer[6] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(2, CollisionBox.layer[1] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(3, CollisionBox.layer[4] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(4, CollisionBox.layer[3] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(5, CollisionBox.layer[7] + obj.transform.position);
+                    obj.GetComponent<LineRenderer>().SetPosition(6, CollisionBox.layer[0] + obj.transform.position);
                 }
             }
         }
