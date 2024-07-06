@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.naelstrof.jigglephysics": {
+      "version": "file:../Addons/UnityJigglePhysics-3.7.1",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {}
+    },
     "com.popcron.extra-controllers": {
       "version": "file:../Assets/extra-controllers-main",
       "depth": 0,

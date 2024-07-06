@@ -142,7 +142,7 @@ public class CollisionBox : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision other) // Debe de detectar cuando no esta tocando el mismo suelo.
+    private void OnCollisionEnter(Collision other) 
     {
         if (other.gameObject.tag == "Floor" && raycastHitFloor
             && other.collider == raycastHitCollider)

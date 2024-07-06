@@ -1,0 +1,10 @@
+newmtl ButtonM__BodyCSG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.20 0.20 0.20
+Tf 1.00 1.00 1.00
+map_Kd BodyC_BaseColor.png
+bump  -bm 0.25 BodyC_Normal.png
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 18.00

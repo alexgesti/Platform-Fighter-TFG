@@ -6,19 +6,19 @@ using UnityEngine.InputSystem;
 public class InputReader : ScriptableObject, GameInput.IGameplayActions
 {
     GameInput _gameInput;
-
+    
     private void OnEnable()
     {
         if (_gameInput == null)
         {
             _gameInput = new GameInput();
-
+    
             _gameInput.Gameplay.SetCallbacks(instance: this);
-
+    
             SetGameplay();
         }
     }
-
+    
     public void SetGameplay()
     {
         _gameInput.Gameplay.Enable();

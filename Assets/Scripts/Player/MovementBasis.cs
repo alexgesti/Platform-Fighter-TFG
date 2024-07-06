@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class MovementBasis : MonoBehaviour
 {
+    public bool isSandBag;
+
     [Header("Stick Controlls")]
     public InputReader input;
     [HideInInspector] public Vector2 Axis;
@@ -270,50 +273,56 @@ public class MovementBasis : MonoBehaviour
 
     void FastFall()
     {
-        if (!cb.isGrounded && verticalSpeed < 0)
+        if (!isSandBag)
         {
-            if (Axis.y < -joystickThresholdMin)
+            if (!cb.isGrounded && verticalSpeed < 0)
             {
-                framesHeldY++;
-
-                if (Axis.y <= -joystickThresholdMax)
+                if (Axis.y < -joystickThresholdMin)
                 {
-                    if (framesHeldY <= requiredStickTimeY && !isDownAxisY)
+                    framesHeldY++;
+
+                    if (Axis.y <= -joystickThresholdMax)
                     {
-                        isFastFall = true;
+                        if (framesHeldY <= requiredStickTimeY && !isDownAxisY)
+                        {
+                            isFastFall = true;
+                        }
                     }
                 }
+                else if (!isFastFall) framesHeldY = 0;
             }
-            else if (!isFastFall) framesHeldY = 0;
         }
     }
 
    void FallPlatform()
    {
-        if (Axis.y < -joystickThresholdMin)
+        if (!isSandBag)
         {
-            if (Axis.y <= -joystickThresholdMax)
+            if (Axis.y < -joystickThresholdMin)
             {
-                if (cb.raycastHitPlatform)
+                if (Axis.y <= -joystickThresholdMax)
                 {
-                    if ((!cb.isGrounded && verticalSpeed < 0) ||
-                        cb.isGrounded)
+                    if (cb.raycastHitPlatform)
                     {
-                        if (cb.isGrounded) isDownAxisY = true;
+                        if ((!cb.isGrounded && verticalSpeed < 0) ||
+                            cb.isGrounded)
+                        {
+                            if (cb.isGrounded) isDownAxisY = true;
 
-                        canFallPlatform = true;
-                        cb.isGrounded = false;
-                        cb.raycastHitPlatform = false;
+                            canFallPlatform = true;
+                            cb.isGrounded = false;
+                            cb.raycastHitPlatform = false;
+                        }
                     }
                 }
             }
-        }
-        else
-        {
-            isDownAxisY = false;
+            else
+            {
+                isDownAxisY = false;
 
-            if (!cb.isTouchingPlatform) // Si se pone justo en el medio al dejar de pulsar, no atraviesa y se queda estancado el suelo.
-                canFallPlatform = false;
+                if (!cb.isTouchingPlatform) // Si se pone justo en el medio al dejar de pulsar, no atraviesa y se queda estancado el suelo.
+                    canFallPlatform = false;
+            }
         }
     }
 
