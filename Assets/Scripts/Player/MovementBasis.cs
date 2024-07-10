@@ -406,9 +406,11 @@ public class MovementBasis : MonoBehaviour
             finalspeed = Axis.x * speed;
         }
 
+        //if (isTouchingWall) finalspeed = 0;
+
         GetComponent<Rigidbody>().velocity = new Vector3(finalspeed, verticalSpeed, 0);
-        //Vector3 movement = new Vector3(finalspeed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
-        //
-        //transform.Translate(movement);
+        
+        //    Vector3 movement = new Vector3(finalspeed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
+        //    transform.Translate(movement);
     }
 }
