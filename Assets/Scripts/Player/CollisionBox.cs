@@ -5,9 +5,7 @@ using UnityEngine;
 public class CollisionBox : MonoBehaviour
 {
     [HideInInspector] public static Vector3[] layer = new Vector3[10]; // Principal detector
-    public MeshCollider meshCollider;
-    Vector3[] layerCopy = new Vector3[10];
-    public MeshCollider meshColliderCopy;
+    MeshCollider meshCollider;
 
     [HideInInspector] public bool isGrounded;
     [HideInInspector] public bool isTouchingPlatform;
@@ -20,14 +18,9 @@ public class CollisionBox : MonoBehaviour
     [HideInInspector] public bool raycastHitPlatform;
     Collider raycastHitCollider;
 
-    [Header("RaycastWall")]
+    //[Header("RaycastWall")]
     //public Vector3[] originRaycasts;
     //public float maxDistanceW;
-
-    [Header("RaycastCollider")]
-    Vector3[] originRayCollider = new Vector3[4];
-    float[] maxDistanceC = new float[8];
-    Collider raycastCollider;
 
     // Start is called before the first frame update
     void Start()
@@ -41,10 +34,7 @@ public class CollisionBox : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        RaycastGround();
-        NextPositionCollider();
-        //RaycastCollider(); 
-        //ColliderController();
+        RaycastGround();    
     }
 
     void CreatingCollision()
@@ -75,40 +65,16 @@ public class CollisionBox : MonoBehaviour
                 triangles[3 * i + 2] = k;
             }
             mesh.triangles = triangles;
-            mesh.RecalculateNormals();
 
             // Asignar el Mesh al MeshFilter
             GetComponent<MeshFilter>().mesh = mesh;
 
             // Configurar el MeshCollider
+            meshCollider = GetComponent<MeshCollider>();
             meshCollider.sharedMesh = mesh;
             meshCollider.convex = true;
-
-            // Copy of the collider
-            layerCopy = layer;
-
-            meshColliderCopy.sharedMesh = mesh;
-            meshColliderCopy.convex = true;
-            meshColliderCopy.isTrigger = true;
         }
     }
-
-    //void CreatingRayCollider()
-    //{
-    //    originRayCollider[0] = new Vector3(0, transform.localScale.y, 0);
-    //    originRayCollider[1] = new Vector3(0, transform.localScale.y / 1.5f, 0);
-    //    originRayCollider[2] = new Vector3(0, 0, 0);
-    //    originRayCollider[3] = new Vector3(0, -transform.localScale.y + 0.1f, 0);
-    //
-    //    maxDistanceC[0] = 0.1f;
-    //    maxDistanceC[1] = (transform.localScale.x / 3) + 0.1f;
-    //    maxDistanceC[2] = (transform.localScale.x / 2) + 0.1f;
-    //    maxDistanceC[3] = 0.1f;
-    //    maxDistanceC[4] = - 0.1f;
-    //    maxDistanceC[5] = (-transform.localScale.x / 3) - 0.1f;
-    //    maxDistanceC[6] = (-transform.localScale.x / 2) - 0.1f;
-    //    maxDistanceC[7] = - 0.1f;
-    //}
 
     void RaycastGround()
     {
@@ -154,16 +120,6 @@ public class CollisionBox : MonoBehaviour
         Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistance, Color.red);
     }
 
-    void NextPositionCollider()
-    {
-        Vector3 futurePosition = GetComponent<Rigidbody>().position + GetComponent<Rigidbody>().velocity * Time.deltaTime;
-
-        for (int i = 0; i < layerCopy.Length; i++)
-        {
-            layerCopy[i] += futurePosition;
-        }
-    }
-
     //void RaycastHorizontal()
     //{
     //    player.isTouchingWall = false;
@@ -190,38 +146,6 @@ public class CollisionBox : MonoBehaviour
     //    }
     //}
 
-    //void RaycastCollider()
-    //{
-    //    int index = 0;
-    //
-    //    foreach (float maxD in maxDistanceC)
-    //    {
-    //        RaycastHit hit;
-    //
-    //        if (Physics.Raycast(originRayCollider[index] + transform.position, new Vector3(1, 0, 0) * Mathf.Sign(maxD), out hit, maxD))
-    //        {
-    //            if (hit.collider.gameObject != gameObject)
-    //            {
-    //                if (hit.collider.tag == "PlatformF")
-    //                {
-    //                    raycastCollider = hit.collider;
-    //                    Physics.IgnoreCollision(this.GetComponent<Collider>(), raycastCollider, true);
-    //                }
-    //            }
-    //        }
-    //        else
-    //        {
-    //            Physics.IgnoreCollision(this.GetComponent<Collider>(), raycastCollider, false);
-    //            raycastCollider = null;
-    //        }
-    //
-    //        Debug.DrawRay(originRayCollider[index] + transform.position, new Vector3(1, 0, 0) * maxD, Color.blue);
-    //
-    //        index++;
-    //        if (index == 4) index = 0;
-    //    }
-    //}
-
     private void OnCollisionEnter(Collision other) 
     {
         if (other.gameObject.tag == "Floor" && raycastHitFloor
@@ -231,10 +155,10 @@ public class CollisionBox : MonoBehaviour
             player.AfterLanding();
         }
 
-        if (other.gameObject.tag == "PlatformF" && player.verticalSpeed > 0)
-        {
-            Physics.IgnoreCollision(this.GetComponent<Collider>(), other.collider, true);
-        }
+        //if (other.gameObject.tag == "PlatformF" && player.verticalSpeed > 0)
+        //{
+        //    Physics.IgnoreCollision(this.GetComponent<Collider>(), other.collider, true);
+        //}
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
             && player.verticalSpeed <= 0 && !player.canFallPlatform
@@ -285,6 +209,27 @@ public class CollisionBox : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "PlatformF" && raycastHitCollider == other)
+        {
+            Physics.IgnoreCollision(meshCollider, other, false);
+        }
+
+        if (other.gameObject.tag == "PlatformF" && raycastHitCollider != other)
+        {
+            Physics.IgnoreCollision(meshCollider, other, true);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "PlatformF" && raycastHitCollider == other)
+        {
+            Physics.IgnoreCollision(meshCollider, other, false);
+        }
+    }
+
     //void ColliderController() // Funciona, pero cuando baja, si no mantienes dado, se para, pero parece q no es mucho problema.
     //                          // Lo mismo cuando tocas una plataforma del lado, se nota que la golpea (no debería ser así, pero no supone mucho problema -> mentira, hay que arreglarlo ya).
     //                          // Al venir de abajo, se activa el collider cuando verticalspeed es inferior a 0, tambien hay que corregir esto.
@@ -292,13 +237,4 @@ public class CollisionBox : MonoBehaviour
     //    if (player.canFallPlatform && raycastHitPlatform) Physics.IgnoreCollision(this.GetComponent<Collider>(), raycastHitCollider, true);
     //    else Physics.IgnoreCollision(GetComponent<Collider>(), raycastHitCollider, false);
     //}
-
-    private void OnDrawGizmos() // Dibujar de otra manera.
-    {
-        if (GetComponent<MeshFilter>().mesh != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawMesh(GetComponent<MeshFilter>().mesh, meshColliderCopy.transform.position, meshColliderCopy.transform.rotation, meshColliderCopy.transform.localScale);
-        }
-    }
 }

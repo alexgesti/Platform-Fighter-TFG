@@ -13444,11 +13444,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: SandBag
       objectReference: {fileID: 0}
+    - target: {fileID: 551113386897978902, guid: dde1228deb8224048a462a141233a73f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5310206188228908558, guid: dde1228deb8224048a462a141233a73f, type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 656883073}
-    - target: {fileID: 8390620638462616653, guid: dde1228deb8224048a462a141233a73f, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 656883073}
@@ -13505,10 +13505,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
-      propertyPath: joystickThresholdMax
-      value: 0.8
-      objectReference: {fileID: 0}
     - target: {fileID: 3570841198685237750, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: m_Name
       value: BaseCharacter
@@ -13553,6 +13549,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5059719024144418768, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Height
+      value: 2.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5059719024144418768, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Radius
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 5059719024144418768, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Center.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5059719024144418768, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Center.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5059719024144418768, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6037488472017642513, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: dJump
       value: 
@@ -13565,6 +13581,10 @@ PrefabInstance:
       propertyPath: particle
       value: 
       objectReference: {fileID: 352130435}
+    - target: {fileID: 7764163833590005670, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: meshColliderCopy
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8792591157396650460, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: p1Anim
       value: 

@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 4622326678423910334}
   - component: {fileID: 8602820238763044214}
   - component: {fileID: 10234376945132257}
+  - component: {fileID: 5059719024144418768}
   - component: {fileID: 9194797888012915182}
-  - component: {fileID: 643350953651150547}
   - component: {fileID: 3054558056103173913}
   - component: {fileID: 7764163833590005670}
   - component: {fileID: 8792591157396650460}
@@ -89,16 +89,8 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
---- !u!33 &9194797888012915182
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3570841198685237750}
-  m_Mesh: {fileID: 0}
---- !u!64 &643350953651150547
-MeshCollider:
+--- !u!136 &5059719024144418768
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -115,9 +107,18 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
+  serializedVersion: 2
+  m_Radius: 1
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: -1, z: 0.5}
+--- !u!33 &9194797888012915182
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3570841198685237750}
   m_Mesh: {fileID: 0}
 --- !u!114 &3054558056103173913
 MonoBehaviour:
@@ -175,7 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshCollider: {fileID: 10234376945132257}
-  meshColliderCopy: {fileID: 643350953651150547}
+  meshColliderCopy: {fileID: 0}
   isGrounded: 0
   isTouchingPlatform: 0
   directionC: {x: 0, y: -1, z: 0}
