@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class MovementBasis : MonoBehaviour
 {
     public bool isSandBag;
+    [HideInInspector] public bool isFinished;
 
     [Header("Stick Controlls")]
     public InputReader input;
@@ -25,6 +26,7 @@ public class MovementBasis : MonoBehaviour
     public float walkSpeed;
     public float runSpeed;
     [HideInInspector] public float speed;
+    [HideInInspector] public float platforMoving;
     [HideInInspector] public float finalspeed;
     bool isRunning;
 
@@ -87,7 +89,7 @@ public class MovementBasis : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Movement();
+        if (!isFinished) Movement();
     }
 
     // Input Readers
@@ -265,8 +267,8 @@ public class MovementBasis : MonoBehaviour
         if (!cb.isGrounded)
         {
             gravity += weight * 9.81f * Time.deltaTime;
-            if (gravity >= maxGravity && !isFastFall) gravity = maxGravity;
-            else if (isFastFall) gravity = maxGravity + 5;
+            //if (gravity >= maxGravity && !isFastFall) gravity = maxGravity;
+            //else if (isFastFall) gravity = maxGravity + 5;
         }
         else gravity = 0;
     }
@@ -368,9 +370,13 @@ public class MovementBasis : MonoBehaviour
         Gravity();
         FallPlatform();
         FastFall();
-        
+
+
         verticalSpeed = sTop - gravity;
 
+        if (verticalSpeed <= -maxGravity && !isFastFall) verticalSpeed = - maxGravity;
+        else if (isFastFall) verticalSpeed = - maxGravity - 5;
+            
         if (cb.isGrounded)
         {
             if (!tractionBool && isDashing)
@@ -406,11 +412,8 @@ public class MovementBasis : MonoBehaviour
             finalspeed = Axis.x * speed;
         }
 
-        //if (isTouchingWall) finalspeed = 0;
+        if (isTouchingWall) finalspeed = 0;
 
-        GetComponent<Rigidbody>().velocity = new Vector3(finalspeed, verticalSpeed, 0);
-        
-        //    Vector3 movement = new Vector3(finalspeed * Time.deltaTime, verticalSpeed * Time.deltaTime, 0);
-        //    transform.Translate(movement);
+        GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
     }
 }

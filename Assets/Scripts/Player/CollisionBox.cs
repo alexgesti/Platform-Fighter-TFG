@@ -9,6 +9,7 @@ public class CollisionBox : MonoBehaviour
 
     [HideInInspector] public bool isGrounded;
     [HideInInspector] public bool isTouchingPlatform;
+    bool isFalling;
     MovementBasis player;
 
     [Header("RaycastPosition")]
@@ -17,16 +18,16 @@ public class CollisionBox : MonoBehaviour
     [HideInInspector] public bool raycastHitFloor;
     [HideInInspector] public bool raycastHitPlatform;
     Collider raycastHitCollider;
+    //public List<Collider> groundColliders = new List<Collider>(); // Intento de correccion de tocar varios suelos (no funciona).
 
-    //[Header("RaycastWall")]
-    //public Vector3[] originRaycasts;
-    //public float maxDistanceW;
+    [Header("RaycastWall")]
+    public Vector3[] originRaycasts;
+    public float maxDistanceW;
 
     // Start is called before the first frame update
     void Start()
     {
         CreatingCollision();
-        //CreatingRayCollider();
 
         player = GetComponent<MovementBasis>();
     }
@@ -34,7 +35,12 @@ public class CollisionBox : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        RaycastGround();    
+        RaycastGround();
+        TraspassController();
+        //RaycastAligment();
+
+        //Debug.Log(player.speed);
+        //Debug.Log("IsGrounded: " + isGrounded);
     }
 
     void CreatingCollision()
@@ -52,6 +58,10 @@ public class CollisionBox : MonoBehaviour
             layer[7] = new Vector3(-transform.localScale.x / 3, transform.localScale.y / 1.5f, 0);
             layer[8] = new Vector3(0, transform.localScale.y / 1.5f, transform.localScale.z / 3);
             layer[9] = new Vector3(0, transform.localScale.y / 1.5f, -transform.localScale.z / 3);
+            //layer[10] = new Vector3(transform.localScale.x / 3, -transform.localScale.y, 0);
+            //layer[11] = new Vector3(-transform.localScale.x / 3, -transform.localScale.y, 0);
+            //layer[12] = new Vector3(0, -transform.localScale.y, transform.localScale.z / 3);
+            //layer[13] = new Vector3(0, -transform.localScale.y, -transform.localScale.z / 3);
 
             Mesh mesh = new Mesh();
             mesh.vertices = layer;
@@ -120,31 +130,50 @@ public class CollisionBox : MonoBehaviour
         Debug.DrawRay(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC * maxDistance, Color.red);
     }
 
-    //void RaycastHorizontal()
+    void RaycastHorizontal()
+    {
+        player.isTouchingWall = false;
+    
+        foreach (Vector3 origin in originRaycasts)
+        {
+            RaycastHit hitW;
+    
+            if (Physics.Raycast(origin + transform.position, new Vector3(Mathf.Sign(player.Axis.x) * Mathf.Ceil(Mathf.Abs(player.Axis.x)), 0, 0), out hitW, maxDistanceW))
+            {
+                if (hitW.collider.gameObject != gameObject)
+                {
+                    if (hitW.collider.gameObject.tag == "Floor")
+                    {
+                        player.isTouchingWall = true;
+                    }
+                }
+            }
+    
+            Debug.DrawRay(origin + transform.position, new Vector3(Mathf.Sign(player.Axis.x) * Mathf.Ceil(Mathf.Abs(player.Axis.x)), 0, 0) * maxDistanceW, Color.red);
+        }
+    }
+
+    //void RaycastAligment() // Intento de correccion de rampas (no funciona).
     //{
-    //    player.isTouchingWall = false;
+    //    RaycastHit info;
     //
-    //    foreach (Vector3 origin in originRaycasts)
+    //    if (Physics.Raycast(transform.position, Vector3.down, out info))
     //    {
-    //        RaycastHit hitW;
-    //
-    //        if (Physics.Raycast(origin + transform.position, new Vector3(Mathf.Sign(player.Axis.x) * Mathf.Ceil(Mathf.Abs(player.Axis.x)), 0, 0), out hitW, maxDistanceW))
-    //        {
-    //            if (hitW.collider.gameObject != gameObject)
-    //            {
-    //                if (hitW.collider.gameObject.tag == "Floor")
-    //                {
-    //                    player.isTouchingWall = true;
-    //
-    //                    // Evitar que el jugador se quede atascado en las paredes si intenta avanzar hacia ellas. Se debería poner en otro sitio y que isTouchingWall se ponga en false.
-    //                    //if (player.isTouchingWall && Mathf.Abs(player.Axis.x) > player.joystickThresholdMin) player.speed = 0;
-    //                }
-    //            }
-    //        }
-    //
-    //        Debug.DrawRay(origin + transform.position, new Vector3(Mathf.Sign(player.Axis.x) * Mathf.Ceil(Mathf.Abs(player.Axis.x)), 0, 0) * maxDistanceW, Color.red);
+    //        Quaternion rotationRef = Quaternion.FromToRotation(Vector3.up, info.normal);
+    //        transform.rotation = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y, rotationRef.eulerAngles.z);
     //    }
     //}
+
+    void TraspassController()
+    {
+        if (raycastHitPlatform)
+        {
+            if (isFalling)
+            {
+                meshCollider.enabled = false;
+            }
+        }
+    }
 
     private void OnCollisionEnter(Collision other) 
     {
@@ -155,11 +184,6 @@ public class CollisionBox : MonoBehaviour
             player.AfterLanding();
         }
 
-        //if (other.gameObject.tag == "PlatformF" && player.verticalSpeed > 0)
-        //{
-        //    Physics.IgnoreCollision(this.GetComponent<Collider>(), other.collider, true);
-        //}
-
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
             && player.verticalSpeed <= 0 && !player.canFallPlatform
             && other.collider == raycastHitCollider)
@@ -169,8 +193,11 @@ public class CollisionBox : MonoBehaviour
             player.AfterLanding();
         }
 
-        //if (other.gameObject.tag == "Floor" && other.collider != raycastHitCollider)
-        //    RaycastHorizontal();
+        //if ((other.gameObject.tag == "Floor" || other.gameObject.tag == "PlatformF") && !groundColliders.Contains(other.collider))
+        //    groundColliders.Add(other.collider);
+
+        if (other.gameObject.tag == "Floor" && other.collider != raycastHitCollider)
+            RaycastHorizontal();
     }
 
     private void OnCollisionStay(Collision other)
@@ -187,54 +214,103 @@ public class CollisionBox : MonoBehaviour
         {
             isTouchingPlatform = true;
             isGrounded = true;
-            if (player.isFastFall) player.AfterLanding();
         }
 
-        //if (other.gameObject.tag == "Floor" && other.collider != raycastHitCollider)
-        //    RaycastHorizontal();
+        //if ((other.gameObject.tag == "Floor" || other.gameObject.tag == "PlatformF") && !groundColliders.Contains(other.collider))
+        //    groundColliders.Add(other.collider);
+
+        if (other.gameObject.tag == "Floor" && other.collider != raycastHitCollider)
+            RaycastHorizontal();
     }
 
     private void OnCollisionExit(Collision other)
     {
         if (other.gameObject.tag == "Floor")
         {
-            isGrounded = false;
+            //groundColliders.Remove(other.collider);
+
+            //if (groundColliders.Count == 0) 
+                isGrounded = false;
+
+            if (player.isTouchingWall) player.isTouchingWall = false;
         }
 
         if (other.gameObject.tag == "PlatformF")
         {
-            isTouchingPlatform = false;
+            //groundColliders.Remove(other.collider);
 
-            isGrounded = false;
+            //if (groundColliders.Count == 0)
+            //{
+                isTouchingPlatform = false;
+
+                isGrounded = false;
+            //}
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "PlatformF" && raycastHitCollider == other)
+        if (other.gameObject.tag == "Floor" && raycastHitFloor
+            && other == raycastHitCollider)
         {
             Physics.IgnoreCollision(meshCollider, other, false);
         }
-
-        if (other.gameObject.tag == "PlatformF" && raycastHitCollider != other)
+        
+        if (other.gameObject.tag == "PlatformF" && raycastHitPlatform
+            && player.verticalSpeed <= 0 && !player.canFallPlatform
+            && other == raycastHitCollider)
         {
-            Physics.IgnoreCollision(meshCollider, other, true);
+            Physics.IgnoreCollision(meshCollider, other, false);
+        }
+        else if (other.gameObject.tag == "PlatformF" && player.canFallPlatform) isFalling = true;
+        else
+        {
+            if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true);
+        }
+
+        // Exclusive for Break the targets
+        if (other.gameObject.tag == "Target")
+        {
+            other.gameObject.GetComponent<BoxCollider>().enabled = false;
+            other.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            GameObject.Find("Targets").GetComponent<TargetLogic>().deactived++;
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "Floor" && raycastHitFloor
+            && other == raycastHitCollider)
+        {
+            Physics.IgnoreCollision(meshCollider, other, false);
+        }
+        
+        if (other.gameObject.tag == "PlatformF" && raycastHitPlatform
+            && player.verticalSpeed <= 0 && !player.canFallPlatform
+            && other == raycastHitCollider)
+        {
+            Physics.IgnoreCollision(meshCollider, other, false);
+        }
+        else if (other.gameObject.tag == "PlatformF" && player.canFallPlatform) isFalling = true;
+        else
+        {
+            if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true);
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "PlatformF" && raycastHitCollider == other)
+        if (other.gameObject.tag == "PlatformF" || other.gameObject.tag == "Floor")
         {
             Physics.IgnoreCollision(meshCollider, other, false);
+
+            if (isFalling)
+            {
+                meshCollider.enabled = true;
+
+                isTouchingPlatform = false;
+                isFalling = false;
+            }
         }
     }
-
-    //void ColliderController() // Funciona, pero cuando baja, si no mantienes dado, se para, pero parece q no es mucho problema.
-    //                          // Lo mismo cuando tocas una plataforma del lado, se nota que la golpea (no debería ser así, pero no supone mucho problema -> mentira, hay que arreglarlo ya).
-    //                          // Al venir de abajo, se activa el collider cuando verticalspeed es inferior a 0, tambien hay que corregir esto.
-    //{
-    //    if (player.canFallPlatform && raycastHitPlatform) Physics.IgnoreCollision(this.GetComponent<Collider>(), raycastHitCollider, true);
-    //    else Physics.IgnoreCollision(GetComponent<Collider>(), raycastHitCollider, false);
-    //}
 }

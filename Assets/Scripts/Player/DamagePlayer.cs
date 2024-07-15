@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class DamagePlayer : MonoBehaviour
 {
+    public bool isTargets;
+
     int damage;
 
     Transform player;
@@ -29,7 +31,7 @@ public class DamagePlayer : MonoBehaviour
     {
         if (!isSandBag)
         {
-            if (ko)
+            if (ko && !isTargets)
             {
                 p1Anim.SetBool("hit", true);
                 p1bAnim.SetBool("hit", true);
@@ -41,6 +43,11 @@ public class DamagePlayer : MonoBehaviour
                 p1Text.text = damage + "%";
                 p1bText.text = damage + "%";
                 ko = false;
+            }
+            else if (ko && isTargets)
+            {
+                p1Text.text = "";
+                p1bText.text = "";
             }
 
             if (this.p1Anim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1Anim.SetBool("hit", false);
@@ -54,7 +61,12 @@ public class DamagePlayer : MonoBehaviour
         if (other.gameObject.tag == "Blastline")
         {
             ko = true;
-            player.position = new Vector3(0, 13, 0);
+            if (!isTargets) player.position = new Vector3(0, 13, 0);
+            else
+            {
+                player.GetComponent<MovementBasis>().isFinished = true;
+                player.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            }
         }
     }
 }
