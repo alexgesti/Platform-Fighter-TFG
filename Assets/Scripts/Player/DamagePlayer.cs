@@ -61,6 +61,7 @@ public class DamagePlayer : MonoBehaviour
         if (other.gameObject.tag == "Blastline")
         {
             ko = true;
+            player.GetComponent<MovementBasis>().audio.Death();
             if (!isTargets) player.position = new Vector3(0, 13, 0);
             else
             {

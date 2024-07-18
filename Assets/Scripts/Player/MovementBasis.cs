@@ -56,7 +56,7 @@ public class MovementBasis : MonoBehaviour
     public float maxFramesSwitchJump; 
     public float maxFramesJump;
     float counterSwitchJump, counterJump;
-    bool isJumping, isDJumping, canDJump;
+    bool isJumping, jOneTime, isDJumping, canDJump;
     [HideInInspector] public bool djOneTime;
 
     [Header("Gravity")]
@@ -75,6 +75,7 @@ public class MovementBasis : MonoBehaviour
     bool isCrouching;
 
     [HideInInspector] public CollisionBox cb;
+    [HideInInspector] public AudioPlayerController audio;
 
     // Start is called before the first frame update
     void Start()
@@ -84,6 +85,7 @@ public class MovementBasis : MonoBehaviour
         input.JumpCancelEvent += HandleCancelJump;
 
         cb = GetComponent<CollisionBox>();
+        audio = GetComponentInChildren<AudioPlayerController>();
     }
 
     // Update is called once per frame
@@ -227,6 +229,12 @@ public class MovementBasis : MonoBehaviour
             {
                 if (counterSwitchJump >= maxFramesSwitchJump && cb.isGrounded && verticalSpeed == 0) sTop = speedFullHop;
                 else if (counterSwitchJump < maxFramesSwitchJump && cb.isGrounded && verticalSpeed == 0) sTop = speedShortHop;
+
+                if (!jOneTime)
+                {
+                    jOneTime = true;
+                    audio.Jump();
+                }
             }
         }
         else if (canDJump)
@@ -241,6 +249,8 @@ public class MovementBasis : MonoBehaviour
 
                 isFastFall = false;
                 framesHeldY = 0;
+
+                audio.Jump();
             }
         }
 
@@ -347,6 +357,7 @@ public class MovementBasis : MonoBehaviour
         sTop = 0;
         verticalSpeed = 0;
         canDJump = false;
+        jOneTime = false;
         isDJumping = false;
         djOneTime = false;
         counterJump = 0;
@@ -375,8 +386,14 @@ public class MovementBasis : MonoBehaviour
         verticalSpeed = sTop - gravity;
 
         if (verticalSpeed <= -maxGravity && !isFastFall) verticalSpeed = - maxGravity;
-        else if (isFastFall) verticalSpeed = - maxGravity - 5;
-            
+        else if (isFastFall && !cb.isGrounded) verticalSpeed = - maxGravity - 5;
+
+        //if (cb.isGrounded && isFastFall && !cb.isTouchingPlatform)
+        //{
+        //    isFastFall = false;
+        //    verticalSpeed = 0;
+        //}
+
         if (cb.isGrounded)
         {
             if (!tractionBool && isDashing)

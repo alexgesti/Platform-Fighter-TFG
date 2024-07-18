@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class DebugInfo : MonoBehaviour
 {
@@ -108,19 +109,14 @@ public class DebugInfo : MonoBehaviour
             frameByFrame = false;
         }
 
-        // Positions F2
         playerPos.text = string.Format("P: x:{0:0.000} y:{1:0.000} z:{2:0.000}", player.position.x, player.position.y, player.position.z);
 
+        // Collision Pos F2
         if (Input.GetKeyDown(KeyCode.F2)) activeColl = !activeColl;
         if (activeColl)
         {
             foreach (GameObject obj in gameObjects)
             {
-                if (obj.CompareTag("Floor") || obj.CompareTag("PlatformF"))
-                {
-                    obj.GetComponent<MeshRenderer>().material = collisionMaterial;
-                }
-
                 if (obj.CompareTag("Player"))
                 {
                     obj.GetComponent<LineRenderer>().enabled = true;
@@ -137,8 +133,89 @@ public class DebugInfo : MonoBehaviour
         }
         else
         {
+            foreach (GameObject obj in gameObjects)
+            {
+                if (obj.CompareTag("Player"))
+                {
+                    obj.GetComponent<LineRenderer>().enabled = false;
+                }
+            }
+        }
+
+        // HitBoxes Player F3 // Se debe de acabar de arreglar que solo sea para cada boton, además de que solo entre una vez en algunos de estos además de que los renderer no se apagan (idk el porque).
+        if (activeColl)
+        {
+            foreach (GameObject obj in gameObjects)
+            {
+                if (obj.CompareTag("Player"))
+                {
+                    foreach (MeshRenderer renderer in obj.GetComponentInChildren<HitBoxesLogic>().hitBVis)
+                    {
+                        renderer.enabled = true;
+                    }
+                }
+            }
+        }
+        else
+        {
+
+            foreach (GameObject obj in gameObjects)
+            {
+                if (obj.CompareTag("Player"))
+                {
+                    foreach (MeshRenderer renderer in obj.GetComponentInChildren<HitBoxesLogic>().hitBVis)
+                    {
+                        renderer.enabled = false;
+                    }
+                }
+            }
+        }
+
+        // No player (With HitBoxes) Tab
+        if (activeColl)
+        {
+            foreach (GameObject obj in gameObjects)
+            {
+                if (obj.CompareTag("Player"))
+                {
+                    foreach (MeshRenderer model in obj.GetComponentsInChildren<MeshRenderer>())
+                    {
+                        if (model.tag == "PlayerModel")
+                            model.gameObject.GetComponent<MeshRenderer>().enabled = false;
+                    }
+                }
+            }
+        }
+        else
+        {
+            foreach (GameObject obj in gameObjects)
+            {
+                if (obj.CompareTag("Player"))
+                {
+                    foreach (MeshRenderer model in obj.GetComponentsInChildren<MeshRenderer>())
+                    {
+                        if (model.tag == "PlayerModel")
+                            model.gameObject.GetComponent<MeshRenderer>().enabled = true;
+                    }
+                }
+            }
+        }
+
+        // Scenary Collision F4
+        if (activeColl)
+        {
+            foreach (GameObject obj in gameObjects)
+            {
+                if (obj.CompareTag("Floor") || obj.CompareTag("PlatformF"))
+                {
+                    obj.GetComponent<MeshRenderer>().material = collisionMaterial;
+                }
+            }
+        }
+        else
+        {
             int indexG = 0;
-            
+
             foreach (GameObject obj in gameObjects)
             {
                 if (obj.CompareTag("Floor") || obj.CompareTag("PlatformF"))
@@ -151,23 +228,20 @@ public class DebugInfo : MonoBehaviour
 
                         indexM++;
                     }
-                    
-                }
 
-                if (obj.CompareTag("Player"))
-                {
-                    obj.GetComponent<LineRenderer>().enabled = false;
                 }
 
                 indexG++;
             }
         }
 
-        // Add damage F3
-        if (Input.GetKeyDown(KeyCode.F3)) dScript.ko = true;
+        // Add damage F5
+        if (Input.GetKeyDown(KeyCode.F5)) dScript.ko = true;
 
-        // Put player in air to platform
-        if (Input.GetKeyDown(KeyCode.F4)) dScript.transform.position = new Vector3(4.45f, 15, 0);
+        // Change Scene
+        if (Input.GetKeyDown(KeyCode.F6)) SceneManager.LoadScene(0);
+
+        if (Input.GetKeyDown(KeyCode.F7)) SceneManager.LoadScene(1);
 
         // Exit
         if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();

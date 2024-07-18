@@ -8,11 +8,13 @@ TagManager:
   - PlatformF
   - Blastline
   - Target
+  - PlayerCollider
+  - PlayerModel
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - HitBoxes
   - Water
   - UI
   - 

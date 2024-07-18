@@ -94,7 +94,7 @@ public class CollisionBox : MonoBehaviour
         
         if (Physics.Raycast(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC, out hit, maxDistance))
         {
-            if (hit.collider.gameObject != gameObject)
+            if (hit.collider.gameObject != gameObject && hit.collider.gameObject.layer != LayerMask.NameToLayer("HitBoxes"))
             {
                 float distance = Vector3.Distance(transform.position - new Vector3(0, transform.localScale.y / 2, 0), hit.point);
                 if (distance < maxDistance) maxDistance = distance;
@@ -140,7 +140,7 @@ public class CollisionBox : MonoBehaviour
     
             if (Physics.Raycast(origin + transform.position, new Vector3(Mathf.Sign(player.Axis.x) * Mathf.Ceil(Mathf.Abs(player.Axis.x)), 0, 0), out hitW, maxDistanceW))
             {
-                if (hitW.collider.gameObject != gameObject)
+                if (hitW.collider.gameObject != gameObject && hitW.collider.gameObject.layer != LayerMask.NameToLayer("HitBoxes"))
                 {
                     if (hitW.collider.gameObject.tag == "Floor")
                     {
@@ -182,6 +182,7 @@ public class CollisionBox : MonoBehaviour
         {
             isGrounded = true;
             player.AfterLanding();
+            player.audio.IsGround();
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
@@ -191,6 +192,7 @@ public class CollisionBox : MonoBehaviour
             isTouchingPlatform = true;
             isGrounded = true;
             player.AfterLanding();
+            player.audio.IsGround();
         }
 
         //if ((other.gameObject.tag == "Floor" || other.gameObject.tag == "PlatformF") && !groundColliders.Contains(other.collider))
@@ -206,6 +208,12 @@ public class CollisionBox : MonoBehaviour
             && other.collider == raycastHitCollider)
         {
             isGrounded = true;
+
+            if (player.isFastFall)
+            {
+                player.AfterLanding();
+                player.audio.IsGround();
+            }
         }
 
         if (other.gameObject.tag == "PlatformF" && raycastHitPlatform 
@@ -273,6 +281,7 @@ public class CollisionBox : MonoBehaviour
         {
             other.gameObject.GetComponent<BoxCollider>().enabled = false;
             other.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            other.gameObject.GetComponent<AudioSource>().Play();
             GameObject.Find("Targets").GetComponent<TargetLogic>().deactived++;
         }
     }

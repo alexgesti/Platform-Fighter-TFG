@@ -13,7 +13,7 @@ public class TargetLogic : MonoBehaviour
 
     public Text chrono, chronoB;
     float time;
-    bool chronoActive = true;
+    public bool chronoActive;
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +31,8 @@ public class TargetLogic : MonoBehaviour
             player.Axis.x = 0;
             chronoActive = false;
         }
+
+        if (player.isFinished && targets.Length != deactived) chronoActive = false;
 
         counter.text = "x " + (targets.Length - deactived); // Se queja de estos dos pero funciona ingame (?????)
         counterB.text = "x " + (targets.Length - deactived);
