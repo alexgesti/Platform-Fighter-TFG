@@ -398,7 +398,6 @@ MonoBehaviour:
   frameByFrameInfo: {fileID: 1088448781}
   playerPos: {fileID: 403255633}
   player: {fileID: 6979347876876214434}
-  gameObjects: []
   collisionMaterial: {fileID: 2100000, guid: 603fae72aff7ce047b3328181ccdb189, type: 2}
   dScript: {fileID: 1772917328}
 --- !u!1 &248422887
@@ -14792,6 +14791,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 850939759445409101, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1983813061378404292, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2074937235327493773, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2074937235327493773, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2074937235327493773, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3570841198685237750, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: m_Name
       value: BaseCharacter
@@ -14848,6 +14867,10 @@ PrefabInstance:
       propertyPath: particle
       value: 
       objectReference: {fileID: 352130435}
+    - target: {fileID: 6631957645668552022, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     - target: {fileID: 8792591157396650460, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: p1Anim
       value: 

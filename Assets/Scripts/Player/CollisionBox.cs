@@ -276,6 +276,9 @@ public class CollisionBox : MonoBehaviour
             if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true);
         }
 
+        if (other.gameObject.tag == "Player" && !isGrounded) Physics.IgnoreCollision(meshCollider, other, true);
+        else if (other.gameObject.tag == "Player" && isGrounded) Physics.IgnoreCollision(meshCollider, other, false);
+
         // Exclusive for Break the targets
         if (other.gameObject.tag == "Target")
         {
@@ -305,6 +308,9 @@ public class CollisionBox : MonoBehaviour
         {
             if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true);
         }
+
+        if (other.gameObject.tag == "Player" && !isGrounded) Physics.IgnoreCollision(meshCollider, other, true);
+        else if (other.gameObject.tag == "Player" && isGrounded) Physics.IgnoreCollision(meshCollider, other, false);
     }
 
     private void OnTriggerExit(Collider other)

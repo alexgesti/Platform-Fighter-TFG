@@ -8,8 +8,8 @@ TagManager:
   - PlatformF
   - Blastline
   - Target
-  - PlayerCollider
   - PlayerModel
+  - PlayerSqueleton
   layers:
   - Default
   - TransparentFX
