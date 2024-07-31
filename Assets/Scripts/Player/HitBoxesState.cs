@@ -4,43 +4,52 @@ using UnityEngine;
 
 public class HitBoxesState : MonoBehaviour
 {
-    [HideInInspector] public int indexState; // 0 = Vulnerable; 1 = DamageAction; -1 = Invulnerable
+    [HideInInspector] public int indexState; 
+    Vector3 ogScale;
     [HideInInspector] public Vector3 scale;
     [HideInInspector] public Transform reference;
-    [HideInInspector] public Color color; // Yellow = Vulnerable; Red = DamageAction; Green = Invulnerable
-
-    BoxCollider bCollider;
-    MeshRenderer rend;
-    MeshFilter filter;
+    [HideInInspector] public MeshRenderer mesh;
 
     private void Start()
     {
         indexState = 0;
 
-        transform.position = reference.position;
-        transform.rotation = reference.rotation;
-        transform.localScale = reference.localScale + scale;
+        ogScale = transform.localScale;
 
-        color = Color.yellow;
+        transform.localScale = ogScale;
 
-        bCollider = GetComponent<BoxCollider>();
-        rend = GetComponent<MeshRenderer>();
-        filter = GetComponent<MeshFilter>();
-
-        AdjustMeshToBoxCollider();
+        mesh = GetComponent<MeshRenderer>();
+        mesh.material.color = new Color(1, 0.92f, 0.016f, 0.6f);
     }
 
     // Update is called once per frame
     void LateUpdate()
     {
-        transform.localPosition = reference.localPosition;
-        transform.localRotation = reference.localRotation;
-        transform.localScale = reference.localScale + scale;
+        if (reference.localScale.x > 1 ||
+            reference.localScale.y > 1 ||
+            reference.localScale.z > 1 ) 
+            transform.localScale = scale + ogScale;
+        else transform.localScale = ogScale;
     }
 
-    void AdjustMeshToBoxCollider()
+    public void Vulnerable()
     {
-        filter.transform.localScale = bCollider.size;
-        filter.transform.localPosition = bCollider.center;
+        indexState = 0;
+
+        mesh.material.color = new Color(1, 0.92f, 0.016f, 0.6f);
+    }
+
+    public void DamageAction()
+    {
+        indexState = 1;
+
+        mesh.material.color = new Color(1, 0, 0, 0.6f);
+    }
+
+    public void Invulnerable()
+    {
+        indexState = 2;
+
+        mesh.material.color = new Color(0, 1, 0, 0.6f);
     }
 }

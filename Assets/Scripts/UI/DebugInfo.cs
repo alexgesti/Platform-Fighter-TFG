@@ -22,7 +22,7 @@ public class DebugInfo : MonoBehaviour
 
     [Header("Dibujado de colisiones")]
     List<GameObject> gameObjects;
-    List<MeshRenderer> hitBoxes;
+    MeshRenderer[] hitBoxes;
     SkinnedMeshRenderer[] skinMesh;
     List<Material> originalMaterials;
     public Material collisionMaterial;
@@ -60,7 +60,12 @@ public class DebugInfo : MonoBehaviour
         }
         gameObjects.AddRange(players);
 
-        hitBoxes = new List<MeshRenderer>();
+        hitBoxes = GameObject.FindGameObjectsWithTag("PlayerColliders").GetComponents<MeshRenderer>();
+
+        foreach (MeshRenderer mesh in hitBoxes)
+        {
+            mesh.enabled = false;
+        }
 
         skinMesh = GameObject.FindGameObjectsWithTag("PlayerModel").GetComponents<SkinnedMeshRenderer>();
 
@@ -81,18 +86,7 @@ public class DebugInfo : MonoBehaviour
                 obj.GetComponent<LineRenderer>().material = new Material(Shader.Find("Sprites/Default"));
                 obj.GetComponent<LineRenderer>().startColor = Color.blue;
                 obj.GetComponent<LineRenderer>().endColor = Color.blue;
-
-                if (obj.GetComponentInChildren<MeshRenderer>().gameObject.layer == 
-                    LayerMask.NameToLayer("HitBoxes"))
-                {
-                    hitBoxes.Add(obj.GetComponentInChildren<MeshRenderer>());
-                }
             }
-        }
-
-        foreach (MeshRenderer mesh in hitBoxes)
-        {
-            mesh.enabled = false;
         }
     }
 

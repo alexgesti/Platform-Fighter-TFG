@@ -30,6 +30,9 @@ public class InputReader : ScriptableObject, GameInput.IGameplayActions
     public event Action JumpEvent;
     public event Action JumpCancelEvent;
 
+    public event Action AttackStartEvent;
+    public event Action AttackCancelEvent;
+
     public void OnJump(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started) JumpStartEvent?.Invoke();
@@ -40,5 +43,11 @@ public class InputReader : ScriptableObject, GameInput.IGameplayActions
     public void OnMove(InputAction.CallbackContext context)
     {
         MoveEvent?.Invoke(obj: context.ReadValue<Vector2>());
+    }
+
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Started) AttackStartEvent?.Invoke();
+        if (context.phase == InputActionPhase.Canceled) AttackCancelEvent?.Invoke();
     }
 }
