@@ -7,13 +7,12 @@ public class DamagePlayer : MonoBehaviour
 {
     public bool isTargets;
 
-    int damage;
+    int damage, textDamage;
 
     Transform player;
     [HideInInspector] public bool ko;
 
     // Text
-    public bool isSandBag;
     public Text p1Text;
     public Animator p1Anim;
     public Text p1bText;
@@ -25,34 +24,38 @@ public class DamagePlayer : MonoBehaviour
     void Start()
     {
         player = GetComponent<Transform>();
+
+        damage = 0;
+        textDamage = int.Parse(p1Text.text);
     }
 
     private void Update()
     {
-        if (!isSandBag)
+        if (damage > textDamage && !isTargets) // Comparador no funciona. Also hay que resetear el damage en movementbasis.
         {
-            if (ko && !isTargets)
-            {
-                p1Anim.SetBool("hit", true);
-                p1bAnim.SetBool("hit", true);
-                damage += 10;
-                if (damage >= 999) damage = 999;
+            p1Anim.SetBool("hit", true);
+            p1bAnim.SetBool("hit", true);
+            //damage += 10; 
+            //if (damage >= 999) damage = 999;
+            damage = GetComponent<MovementBasis>().percentage;
 
-                if (damage < 200) p1Text.color = p1Text.color - new Color(0.037f, 0.085f, 0.085f, 0f);
+            if (damage < 200) p1Text.color = p1Text.color - new Color(0.037f, 0.085f, 0.085f, 0f);
 
-                p1Text.text = damage + "%";
-                p1bText.text = damage + "%";
-                ko = false;
-            }
-            else if (ko && isTargets)
-            {
-                p1Text.text = "";
-                p1bText.text = "";
-            }
+            p1Text.text = damage + "%";
+            p1bText.text = damage + "%";
 
-            if (this.p1Anim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1Anim.SetBool("hit", false);
-            if (this.p1bAnim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1bAnim.SetBool("hit", false);
+            textDamage = int.Parse(p1Text.text);
         }
+        
+        if (ko && isTargets)
+        {
+            p1Text.text = "";
+            p1bText.text = "";
+        }
+
+        if (this.p1Anim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1Anim.SetBool("hit", false);
+        if (this.p1bAnim.GetCurrentAnimatorStateInfo(0).IsName("DamagedVibration")) p1bAnim.SetBool("hit", false);
+
     }
 
     // Update is called once per frame

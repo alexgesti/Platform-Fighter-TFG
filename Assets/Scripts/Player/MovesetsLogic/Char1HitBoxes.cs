@@ -21,11 +21,17 @@ public class Char1HitBoxes : MonoBehaviour
                 {
                     hit.GetComponent<HitBoxesState>().DamageAction();
                     hit.GetComponent<HitBoxesState>().scale = new Vector3(0.15f, 0.15f, 0.15f);
+                    hit.GetComponent<HitBoxesState>().launchAngle = 45;
+                    hit.GetComponent<HitBoxesState>().launchSpeed = 20;
+                    hit.GetComponent<HitBoxesState>().damage = 10;
                 }
                 else if (i == 0)
                 {
                     hit.GetComponent<HitBoxesState>().Vulnerable();
                     hit.GetComponent<HitBoxesState>().scale = Vector3.zero;
+                    hit.GetComponent<HitBoxesState>().launchAngle = 0;
+                    hit.GetComponent<HitBoxesState>().launchSpeed = 0;
+                    hit.GetComponent<HitBoxesState>().damage = 0;
                 }
             }
         }
@@ -41,11 +47,17 @@ public class Char1HitBoxes : MonoBehaviour
                 {
                     hit.GetComponent<HitBoxesState>().DamageAction();
                     hit.GetComponent<HitBoxesState>().scale = new Vector3(0.15f, 0.15f, 0.15f);
+                    hit.GetComponent<HitBoxesState>().launchAngle = 45;
+                    hit.GetComponent<HitBoxesState>().launchSpeed = 20;
+                    hit.GetComponent<HitBoxesState>().damage = 10;
                 }
                 else if (i == 0)
                 {
                     hit.GetComponent<HitBoxesState>().Vulnerable();
                     hit.GetComponent<HitBoxesState>().scale = Vector3.zero;
+                    hit.GetComponent<HitBoxesState>().launchAngle = 0;
+                    hit.GetComponent<HitBoxesState>().launchSpeed = 0;
+                    hit.GetComponent<HitBoxesState>().damage = 0;
                 }
             }
         }

@@ -75,6 +75,12 @@ public class MovementBasis : MonoBehaviour
     [Header("Crouch")]
     bool isCrouching;
 
+    // Knockback
+    [HideInInspector] public bool knockbackBool;
+    [HideInInspector] public float launchSpeed, launchAngle, direction;
+    [HideInInspector] public int damage, percentage;
+    bool damagedOneTime;
+
     [HideInInspector] public CollisionBox cb;
     [HideInInspector] public AudioPlayerController audio;
     HitBoxesController hit;
@@ -109,6 +115,10 @@ public class MovementBasis : MonoBehaviour
         {
             isJumping = true;
         }
+        //else if (isJumping && hit.attackButton)
+        //{
+        //    isJumping = false;
+        //}
 
         if (canDJump) isDJumping = true;
     }
@@ -124,7 +134,6 @@ public class MovementBasis : MonoBehaviour
     {
         //if (!isCrouching)
         //{
-        Debug.Log(cb.isGrounded);
         if (cb.isGrounded) // Grounded
         {
             if (Mathf.Abs(Axis.x) > joystickThresholdMin && !tractionBool)
@@ -284,8 +293,6 @@ public class MovementBasis : MonoBehaviour
         if (!cb.isGrounded)
         {
             gravity += weight * 9.81f * Time.deltaTime;
-            //if (gravity >= maxGravity && !isFastFall) gravity = maxGravity;
-            //else if (isFastFall) gravity = maxGravity + 5;
         }
         else gravity = 0;
     }
@@ -345,6 +352,36 @@ public class MovementBasis : MonoBehaviour
         }
     }
 
+    void Knockback()
+    {
+        if (knockbackBool)
+        {
+            if (direction == -1) launchAngle += 90;
+
+            //launchAngle = Mathf.Repeat(launchAngle, 360);
+
+            float angleRad = launchAngle * Mathf.Deg2Rad;
+
+            if (!damagedOneTime)
+            {
+                percentage += damage;
+
+                if (percentage >= 999) percentage = 999;
+
+                damagedOneTime = true;
+            }
+
+            Debug.Log(percentage);
+
+            Vector3 launchForce = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad), 0) * launchSpeed * weight * (percentage * 0.001f);
+
+            knockbackBool = false;
+
+            GetComponent<Rigidbody>().velocity = new Vector3(launchForce.x, launchForce.y, 0);
+        }
+        else damagedOneTime = false;
+    }
+
     public void ResetJump()
     {
         // Jump Reset
@@ -387,13 +424,12 @@ public class MovementBasis : MonoBehaviour
 
     void Movement()
     {
-        HorzitonalMovement();
-        Crouch();
-        Jump();
+        if (!hit.attackButton) HorzitonalMovement();
+        if (!hit.attackButton) Crouch();
+        if (!hit.attackButton) Jump();
         Gravity();
-        FallPlatform();
-        FastFall();
-
+        if (!hit.attackButton) FallPlatform();
+        if (!hit.attackButton) FastFall();
 
         verticalSpeed = sTop - gravity;
 
@@ -443,7 +479,8 @@ public class MovementBasis : MonoBehaviour
 
         if (isTouchingWall) finalspeed = 0;
 
-        if (!hit.attackButton) GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
-        else GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+        GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
+
+        Knockback();
     }
 }
