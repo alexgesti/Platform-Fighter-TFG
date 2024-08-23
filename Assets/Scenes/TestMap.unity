@@ -358,7 +358,19 @@ MonoBehaviour:
   hitBoxes: []
   bonesRef: []
   input: {fileID: 0}
-  attackButton: 0
+  canAir: 0
+  isN: 0
+  isF: 0
+  isD: 0
+  isU: 0
+  isNAir: 0
+  isFAir: 0
+  isDAir: 0
+  isUAir: 0
+  isN2: 0
+  isN3: 0
+  isNRepeat: 0
+  neutralIndex: 0
 --- !u!1 &109049067
 GameObject:
   m_ObjectHideFlags: 0
@@ -587,7 +599,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: SAKOMASOKA
+  m_Text: MASOKA-KUN
 --- !u!222 &226757498
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -15447,6 +15459,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SandBag
       objectReference: {fileID: 0}
+    - target: {fileID: 2037922590426978553, guid: dde1228deb8224048a462a141233a73f, type: 3}
+      propertyPath: dragBase
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 5310206188228908558, guid: dde1228deb8224048a462a141233a73f, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -15543,6 +15559,18 @@ PrefabInstance:
     - target: {fileID: 148775368221386570, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
       propertyPath: m_Name
       value: BaseCharacter
+      objectReference: {fileID: 0}
+    - target: {fileID: 1872753145760254373, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
+      propertyPath: dragBase
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1872753145760254373, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
+      propertyPath: joystickThresholdMaxOg
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 1872753145760254373, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
+      propertyPath: joystickThresholdMinOg
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 5303881762441621344, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
       propertyPath: p1Anim

@@ -15,6 +15,8 @@ public class HitBoxesState : MonoBehaviour
     [HideInInspector] public float launchSpeed, launchAngle;
     [HideInInspector] public int damage;
 
+    [HideInInspector] public int indexNeutral;
+
     private void Start()
     {
         indexState = 0;
@@ -32,9 +34,9 @@ public class HitBoxesState : MonoBehaviour
     {
         if (!GetComponentInParent<MovementBasis>().isSandBag)
         {
-            if (reference.localScale.x > 1 ||
-                reference.localScale.y > 1 ||
-                reference.localScale.z > 1)
+            if (reference.localScale.x > ogScale.x ||
+                reference.localScale.y > ogScale.y ||
+                reference.localScale.z > ogScale.z)
                 transform.localScale = scale + ogScale;
             else transform.localScale = ogScale;
         }

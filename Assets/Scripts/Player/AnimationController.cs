@@ -26,21 +26,25 @@ public class AnimationController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (player.Axis.x > player.joystickThresholdMin && player.cb.isGrounded)
+        if (!hit.isN && !hit.isF && !hit.isD && !hit.isU && !player.isCrouching)
         {
-            transform.localEulerAngles = new Vector3(0, 90, 0);
-            particle.transform.localRotation = Quaternion.Euler(-10, -90, 0);
-        }
-        else if (player.Axis.x < -player.joystickThresholdMin && player.cb.isGrounded)
-        {
-            transform.localEulerAngles = new Vector3(0, -90, 0);
-            particle.transform.localRotation = Quaternion.Euler(-10, 90, 0);
+            if (player.Axis.x > player.joystickThresholdMin && player.cb.isGrounded)
+            {
+                transform.localEulerAngles = new Vector3(0, 90, 0);
+                particle.transform.localRotation = Quaternion.Euler(-10, -90, 0);
+            }
+            else if (player.Axis.x < -player.joystickThresholdMin && player.cb.isGrounded)
+            {
+                transform.localEulerAngles = new Vector3(0, -90, 0);
+                particle.transform.localRotation = Quaternion.Euler(-10, 90, 0);
+            }
         }
 
         // Movement
-        if (!hit.attackButton)
+        if (!hit.isN && !hit.isF && !hit.isD && !hit.isU && 
+            !hit.isNAir && !hit.isFAir && !hit.isDAir && !hit.isUAir)
         {
-            if (player.isDashing && !player.tractionBool && player.cb.isGrounded) // Dash before Run
+            if (player.isDashing && !player.tractionBool && player.cb.isGrounded && !player.isCrouching) // Dash before Run
             {
                 anim.SetBool("isWalk", false);
                 anim.SetBool("isRun", false);
@@ -53,7 +57,7 @@ public class AnimationController : MonoBehaviour
                     dOneTime = true;
                 }
             }
-            else if (player.speed == player.runSpeed && player.cb.isGrounded) // Run
+            else if (player.speed == player.runSpeed && player.cb.isGrounded && !player.isCrouching) // Run
             {
                 anim.SetBool("isWalk", false);
                 anim.SetBool("isRun", true);
@@ -62,21 +66,23 @@ public class AnimationController : MonoBehaviour
                 anim.SetBool("isGonnaRun", false);
                 anim.SetBool("isJump", false);
                 anim.SetBool("isFall", false);
+                anim.SetBool("isCrouch", false);
 
                 particle.transform.position = new Vector3(0, -10, 0);
             }
-            else if (player.speed == player.walkSpeed && player.cb.isGrounded) // Walk
+            else if (player.speed == player.walkSpeed && player.cb.isGrounded && !player.isCrouching) // Walk
             {
                 anim.SetBool("isWalk", true);
                 anim.SetBool("isRun", false);
                 anim.SetBool("isJump", false);
                 anim.SetBool("isFall", false);
+                anim.SetBool("isCrouch", false);
 
                 // Animation Speed Walk
                 speedW = Mathf.Abs(player.Axis.x) * 3;
                 anim.SetFloat("speedW", speedW);
             }
-            else if (player.speed == 0 && !player.tractionBool && player.cb.isGrounded) // Idle -> Apaga igualmente a isRun y isWalk
+            else if (player.speed == 0 && !player.tractionBool && player.cb.isGrounded && !player.isCrouching) // Idle -> Apaga igualmente a isRun y isWalk
             {
                 anim.SetBool("isJump", false);
                 anim.SetBool("isFall", false);
@@ -85,13 +91,15 @@ public class AnimationController : MonoBehaviour
                 anim.SetBool("isTraction", false);
                 anim.SetBool("isDirectionChanged", false);
                 anim.SetBool("isGonnaRun", false);
+                anim.SetBool("isCrouch", false);
 
                 dOneTime = false;
                 particle.transform.position = new Vector3(0, -10, 0);
             }
-            else if (player.verticalSpeed > 0 && !player.cb.isGrounded) // Jump
+            else if (player.verticalSpeed > 0) // Jump. ATENCION Le he sacado el !isGrounded. Puede que sea necesario volverlo a poner.
             {
                 anim.SetBool("isJump", true);
+                anim.SetBool("isCrouch", false); 
                 anim.SetBool("isWalk", false);
                 anim.SetBool("isRun", false);
                 anim.SetBool("isTraction", false);
@@ -104,6 +112,7 @@ public class AnimationController : MonoBehaviour
             {
                 anim.SetBool("isJump", false);
                 anim.SetBool("isFall", true);
+                anim.SetBool("isCrouch", false);
                 anim.SetBool("isWalk", false);
                 anim.SetBool("isRun", false);
                 anim.SetBool("isTraction", false);
@@ -125,6 +134,17 @@ public class AnimationController : MonoBehaviour
                 anim.SetBool("isDirectionChanged", false);
                 anim.SetBool("isJump", false);
                 anim.SetBool("isRun", false);
+            }
+            else if (player.isCrouching) // Crouch
+            {
+                anim.SetBool("isCrouch", true);
+                anim.SetBool("isJump", false);
+                anim.SetBool("isFall", false);
+                anim.SetBool("isWalk", false);
+                anim.SetBool("isRun", false);
+                anim.SetBool("isTraction", false);
+                anim.SetBool("isDirectionChanged", false);
+                anim.SetBool("isGonnaRun", false);
             }
 
             if (player.cb.isGrounded) // Idle after Fall
@@ -161,26 +181,60 @@ public class AnimationController : MonoBehaviour
             fOneTime = false;
         }
 
-        else if (hit.attackButton)
+        // Attacks
+        if (hit.isN)
+        {
+            anim.SetBool("isGonnaN", true);
+
+            if (hit.isNRepeat) anim.SetBool("isGonnaNLoop", true);
+            else anim.SetBool("isGonnaNLoop", false);
+
+            if (hit.isN2) anim.SetBool("isGonnaN2", true);
+            if (hit.isN3) anim.SetBool("isGonnaN3", true);
+        }
+        else if (hit.isF)
+        {
+            anim.SetBool("isGonnaF", true);
+        }
+        else if (hit.isU)
+        {
+            anim.SetBool("isGonnaU", true);
+        }
+        else if (hit.isD)
+        {
+            anim.SetBool("isGonnaD", true);
+        }
+        else if (hit.isNAir) // Aerial
+        {
+            anim.SetBool("isGonnaNAir", true);
+        }
+
+        if (hit.isN || hit.isF || hit.isD || hit.isU ||
+            hit.isNAir || hit.isFAir || hit.isDAir || hit.isUAir)
         {
             anim.SetBool("isWalk", false);
             anim.SetBool("isRun", false);
-            anim.SetBool("isFall", false);
+            if (hit.isN || hit.isF || hit.isD || hit.isU) anim.SetBool("isFall", false);
             anim.SetBool("isTraction", false);
             anim.SetBool("isDirectionChanged", false);
             anim.SetBool("isGonnaRun", false);
-        }
-
-        // Attacks
-        if (hit.attackButton &&
-            player.GetComponent<Rigidbody>().velocity == new Vector3(0, 0, 0) &&
-            player.cb.isGrounded) // Jab
-        {
-            anim.SetBool("isGonnaJab", true);
+            if ((hit.isN || hit.isF || hit.isU) && !hit.isD) anim.SetBool("isCrouch", false);
         }
         else
         {
-            anim.SetBool("isGonnaJab", false);
+            anim.SetBool("isGonnaN", false);
+            anim.SetBool("isGonnaF", false);
+            anim.SetBool("isGonnaD", false);
+            anim.SetBool("isGonnaU", false);
+            anim.SetBool("isGonnaNAir", false);
+            anim.SetBool("isGonnaFAir", false);
+            anim.SetBool("isGonnaDAir", false);
+            anim.SetBool("isGonnaUAir", false);
+            anim.SetBool("isGonnaN2", false);
+            anim.SetBool("isGonnaN3", false);
+            anim.SetBool("isGonnaNLoop", false);
+            if (player.cb.isGrounded) anim.SetBool("isFall", false);
         }
+
     }
 }

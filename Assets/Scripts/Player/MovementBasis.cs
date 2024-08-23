@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -73,17 +74,28 @@ public class MovementBasis : MonoBehaviour
     bool isDownAxisY;
 
     [Header("Crouch")]
-    bool isCrouching;
+    [HideInInspector] public bool isCrouching;
+    [HideInInspector] public bool isBusy;
 
-    // Knockback
+    [Header("Knockback")]
+    public float dragBase;
     [HideInInspector] public bool knockbackBool;
     [HideInInspector] public float launchSpeed, launchAngle, direction;
+    float angleRadY, angleRadX;
     [HideInInspector] public int damage, percentage;
+    Vector3 knockbackSpeed;
     bool damagedOneTime;
+    [HideInInspector] public bool isHitted;
 
     [HideInInspector] public CollisionBox cb;
     [HideInInspector] public AudioPlayerController audio;
     HitBoxesController hit;
+
+    private void Awake()
+    {
+        joystickThresholdMin = 0.2f;
+        joystickThresholdMax = 0.8f;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -114,11 +126,9 @@ public class MovementBasis : MonoBehaviour
         if (cb.isGrounded && !isJumping)
         {
             isJumping = true;
+
+            if (!hit.isD) hit.CancelAttackForFallAnim();
         }
-        //else if (isJumping && hit.attackButton)
-        //{
-        //    isJumping = false;
-        //}
 
         if (canDJump) isDJumping = true;
     }
@@ -132,11 +142,12 @@ public class MovementBasis : MonoBehaviour
     // Logic Movement
     void HorzitonalMovement()
     {
-        //if (!isCrouching)
-        //{
-        if (cb.isGrounded) // Grounded
+        if (cb.isGrounded && !isCrouching &&
+            !hit.isNAir) // Grounded
         {
-            if (Mathf.Abs(Axis.x) > joystickThresholdMin && !tractionBool)
+            if (Mathf.Abs(Axis.x) > joystickThresholdMin && !tractionBool
+                && Mathf.Abs(Axis.y) < joystickThresholdMin
+                && !hit.isF && !hit.isU && !hit.isD)
             {
                 if (!isRunning) framesHeld++;
 
@@ -223,8 +234,17 @@ public class MovementBasis : MonoBehaviour
 
     void Crouch()
     {
-        if (Axis.y < -0.5f) isCrouching = true;
-        else isCrouching = false;
+        if (GetComponent<Rigidbody>().velocity == new Vector3(0, 0, 0) &&
+            Axis.y <= -joystickThresholdMin && cb.isGrounded &&
+            !tractionBool && !isDashing && speed == 0 &&
+            !hit.isN && !hit.isF && !hit.isU && !hit.isNAir &&
+            !isBusy)
+        {
+            isCrouching = true;
+        }
+        else
+            isCrouching = false;
+            //if (!hit.isD) isCrouching = false;
     }
 
 
@@ -267,6 +287,9 @@ public class MovementBasis : MonoBehaviour
                 framesHeldY = 0;
 
                 audio.Jump();
+
+                if (hit.isNAir || hit.isFAir || hit.isDAir || hit.isUAir)
+                    hit.CancelAerialAttackAnim();
             }
         }
 
@@ -289,12 +312,21 @@ public class MovementBasis : MonoBehaviour
     }
 
     void Gravity()
-    {
+    { 
         if (!cb.isGrounded)
         {
             gravity += weight * 9.81f * Time.deltaTime;
+
+            if (!hit.canAir) hit.canAir = true;
+
+            if (hit.isF || hit.isU || hit.isD) hit.CancelAttackForFallAnim();
         }
-        else gravity = 0;
+        else
+        {
+            gravity = 0;
+
+            if (hit.canAir) hit.canAir = false;
+        }
     }
 
     void FastFall()
@@ -320,7 +352,7 @@ public class MovementBasis : MonoBehaviour
         }
     }
 
-   void FallPlatform()
+   void FallPlatform() // ATENCION por alguna razon de las razones, si se realiza un ataque cancelado por tocar una plataforma, este fall estará jodido y consecuente el resto.
    {
         if (!isSandBag)
         {
@@ -352,15 +384,17 @@ public class MovementBasis : MonoBehaviour
         }
     }
 
-    void Knockback()
+    void Knockback() // ATENCION. Se ha procedido hacer el decremento por friccion y recalculo del knockback, pero ahora a veces funciona bien y otras veces no. Además parece que las hitboxes no son acordes del todo (???, esto se puede pasar un poco)
     {
         if (knockbackBool)
         {
-            if (direction == -1) launchAngle += 90;
+            float launchAngleX = launchAngle;
 
-            //launchAngle = Mathf.Repeat(launchAngle, 360);
+            if (direction == -1) launchAngleX -= 180;
 
-            float angleRad = launchAngle * Mathf.Deg2Rad;
+            angleRadY = launchAngle * Mathf.Deg2Rad;
+
+            angleRadX = launchAngleX * Mathf.Deg2Rad;
 
             if (!damagedOneTime)
             {
@@ -368,18 +402,32 @@ public class MovementBasis : MonoBehaviour
 
                 if (percentage >= 999) percentage = 999;
 
+                GetComponent<DamagePlayer>().IsDamaged(percentage);
+
                 damagedOneTime = true;
             }
 
-            Debug.Log(percentage);
-
-            Vector3 launchForce = new Vector3(Mathf.Cos(angleRad), Mathf.Sin(angleRad), 0) * launchSpeed * weight * (percentage * 0.001f);
-
             knockbackBool = false;
 
-            GetComponent<Rigidbody>().velocity = new Vector3(launchForce.x, launchForce.y, 0);
+            knockbackSpeed = new Vector3(Mathf.Cos(angleRadX) * launchSpeed * percentage, Mathf.Sin(angleRadY) * launchSpeed * percentage, 0);
         }
         else damagedOneTime = false;
+
+        //Vector3 launchForce = new Vector3(Mathf.Cos(angleRadX), Mathf.Sin(angleRadY), 0) * launchSpeed * weight * (percentage * 0.01f) * Time.deltaTime;
+
+        Vector3 dragForce = dragBase * knockbackSpeed;
+
+        Vector3 gravityKnockback = new Vector3(1, 1, 0) * 9.81f;
+
+        knockbackSpeed = knockbackSpeed - (dragForce + gravityKnockback);
+
+        GetComponent<Rigidbody>().velocity = knockbackSpeed * 0.01f;
+
+        Debug.Log(GetComponent<Rigidbody>().velocity);
+
+        if (GetComponent<Rigidbody>().velocity.y <= 1 && angleRadX > 0 ||
+            GetComponent<Rigidbody>().velocity.y >= -1 && angleRadX < 0) 
+            isHitted = false;
     }
 
     public void ResetJump()
@@ -403,6 +451,7 @@ public class MovementBasis : MonoBehaviour
         tractionBool = false;
         isRunning = false;
         isChangingDirTraction = false;
+        speed = 0;
         tractionFrames = 0;
         framesHeld = 10;
 
@@ -420,16 +469,18 @@ public class MovementBasis : MonoBehaviour
         // Fall Platform
         canFallPlatform = false;
         isDownAxisY = false;
+
+        hit.CancelAerialAttackAnim();
     }
 
     void Movement()
     {
-        if (!hit.attackButton) HorzitonalMovement();
-        if (!hit.attackButton) Crouch();
-        if (!hit.attackButton) Jump();
-        Gravity();
-        if (!hit.attackButton) FallPlatform();
-        if (!hit.attackButton) FastFall();
+        if (!hit.isN) HorzitonalMovement();
+        Crouch();
+        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD) Jump();
+        if (!hit.isN) Gravity();
+        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD) FallPlatform();
+        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD) FastFall();
 
         verticalSpeed = sTop - gravity;
 
@@ -479,8 +530,7 @@ public class MovementBasis : MonoBehaviour
 
         if (isTouchingWall) finalspeed = 0;
 
-        GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
-
-        Knockback();
+        if (!isHitted) GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
+        else Knockback();
     }
 }
