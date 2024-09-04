@@ -72,6 +72,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: -49.282967
       objectReference: {fileID: 0}
+    - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: dragBase
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: playerID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3054558056103173913, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: maxGravity
+      value: 35
+      objectReference: {fileID: 0}
     - target: {fileID: 3509772999349406313, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -26.462597
@@ -152,6 +164,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5938329576197977336, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Name
+      value: CharacterAnims1
+      objectReference: {fileID: 0}
     - target: {fileID: 6056461139360831650, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -1.9309341
@@ -216,6 +232,26 @@ PrefabInstance:
       propertyPath: input
       value: 
       objectReference: {fileID: 11400000, guid: 34aff19d0d5e46a448a53055481f689e, type: 2}
+    - target: {fileID: 7250500221381659803, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: maxSmashTime
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 7250500221381659803, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: requiredStickTimeX
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7250500221381659803, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: requiredStickTimeY
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8602820238763044214, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Drag
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8602820238763044214, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
+      propertyPath: m_Mass
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 8608049690294580007, guid: 2dd3bbd0e147fde40abdef2d0f08bc98, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 37.354713

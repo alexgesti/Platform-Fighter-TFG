@@ -43,7 +43,8 @@ public class DamagePlayer : MonoBehaviour
         {
             p1Anim.SetBool("hit", true);
             p1bAnim.SetBool("hit", true);
-            if (damaged < 200) p1Text.color = p1Text.color - new Color(0.037f, 0.085f, 0.085f, 0f);
+            if (damaged < 200) p1Text.color = p1Text.color - (new Color(0.002843135f, 0.005f, 0.005f, 0f) * GetComponent<MovementBasis>().damage);
+            else p1Text.color = finalColor;
 
             p1Text.text = damaged + "%";
             p1bText.text = damaged + "%";
@@ -59,6 +60,7 @@ public class DamagePlayer : MonoBehaviour
             player.GetComponent<MovementBasis>().audio.Death();
 
             GetComponent<MovementBasis>().percentage = 0;
+            GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
             p1Text.text = "0%";
             p1bText.text = "0%";
             p1Text.color = startColor;

@@ -14,6 +14,10 @@ public class AnimationController : MonoBehaviour
     bool djOneTime, fOneTime, dOneTime;
     float speedW;
 
+    // Color blink
+    List<Renderer> renderModel = new List<Renderer>();
+    bool isBlinking;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -21,12 +25,24 @@ public class AnimationController : MonoBehaviour
         player = gameObject.GetComponentInParent<MovementBasis>();
         hit = GetComponent<HitBoxesController>();
         anim = GetComponent<Animator>();
+
+        isBlinking = false;
+
+        Renderer[] childModel = GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer model in childModel)
+        {
+            if (model.gameObject.CompareTag("PlayerModel"))
+                renderModel.Add(model);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!hit.isN && !hit.isF && !hit.isD && !hit.isU && !player.isCrouching)
+        if (!hit.isN && !hit.isF && !hit.isD && !hit.isU
+            && !hit.isFSmash && !hit.isDSmash && !hit.isUSmash
+            && !player.isCrouching && !player.isBusy)
         {
             if (player.Axis.x > player.joystickThresholdMin && player.cb.isGrounded)
             {
@@ -42,7 +58,7 @@ public class AnimationController : MonoBehaviour
 
         // Movement
         if (!hit.isN && !hit.isF && !hit.isD && !hit.isU && 
-            !hit.isNAir && !hit.isFAir && !hit.isDAir && !hit.isUAir)
+            !hit.isNAir && !hit.isFAir && !hit.isBAir && !hit.isDAir && !hit.isUAir)
         {
             if (player.isDashing && !player.tractionBool && player.cb.isGrounded && !player.isCrouching) // Dash before Run
             {
@@ -208,9 +224,47 @@ public class AnimationController : MonoBehaviour
         {
             anim.SetBool("isGonnaNAir", true);
         }
+        else if (hit.isDAir) // Aerial
+        {
+            anim.SetBool("isGonnaDAir", true);
+        }
+        else if (hit.isUAir) // Aerial
+        {
+            anim.SetBool("isGonnaUAir", true);
+        }
+        else if (hit.isFAir) // Aerial
+        {
+            anim.SetBool("isGonnaFAir", true);
+        }
+        else if (hit.isBAir) // Aerial
+        {
+            anim.SetBool("isGonnaBAir", true);
+        }
+        else if (hit.isUSmash)
+        {
+            anim.SetBool("isGonnaSmash", true);
+            anim.SetBool("isGonnaUSmash", true);
+
+            BlinkLogic();
+        }
+        else if (hit.isDSmash)
+        {
+            anim.SetBool("isGonnaSmash", true);
+            anim.SetBool("isGonnaDSmash", true);
+
+            BlinkLogic();
+        }
+        else if (hit.isFSmash)
+        {
+            anim.SetBool("isGonnaSmash", true);
+            anim.SetBool("isGonnaFSmash", true);
+
+            BlinkLogic();
+        }
 
         if (hit.isN || hit.isF || hit.isD || hit.isU ||
-            hit.isNAir || hit.isFAir || hit.isDAir || hit.isUAir)
+            hit.isNAir || hit.isBAir || hit.isFAir || hit.isDAir || hit.isUAir ||
+            hit.canSmash || hit.isUSmash || hit.isFSmash || hit.isDSmash)
         {
             anim.SetBool("isWalk", false);
             anim.SetBool("isRun", false);
@@ -228,13 +282,53 @@ public class AnimationController : MonoBehaviour
             anim.SetBool("isGonnaU", false);
             anim.SetBool("isGonnaNAir", false);
             anim.SetBool("isGonnaFAir", false);
+            anim.SetBool("isGonnaBAir", false);
             anim.SetBool("isGonnaDAir", false);
             anim.SetBool("isGonnaUAir", false);
             anim.SetBool("isGonnaN2", false);
             anim.SetBool("isGonnaN3", false);
             anim.SetBool("isGonnaNLoop", false);
+            anim.SetBool("isGonnaSmash", false);
+            anim.SetBool("isGonnaFSmash", false);
+            anim.SetBool("isGonnaDSmash", false);
+            anim.SetBool("isGonnaUSmash", false);
             if (player.cb.isGrounded) anim.SetBool("isFall", false);
         }
+    }
 
+    void BlinkLogic()
+    {
+        float timeRatio = GetComponent<HitBoxesController>().framesHeld / 
+            GetComponent<HitBoxesController>().framesMaxCharge;
+
+        float blinkSpeed = Mathf.Lerp(1, 10, timeRatio);
+
+        if (!isBlinking)
+            StartCoroutine(BlinkCharacter(blinkSpeed));
+    }
+
+    IEnumerator BlinkCharacter(float blinkSpeed)
+    {
+        isBlinking = true;
+
+        while (GetComponent<HitBoxesController>().framesHeld <
+            GetComponent<HitBoxesController>().framesMaxCharge)
+        {
+            float t = Mathf.PingPong(Time.time * blinkSpeed, 1);
+
+            foreach (Renderer model in renderModel)
+            {
+                model.material.color = Color.Lerp(new Color(1, 1, 1, 1), new Color(1, 1, 0, 0.25f), t);
+            }
+
+            yield return null;
+        }
+
+        foreach (Renderer model in renderModel)
+        {
+            model.material.color = new Color(1, 1, 1, 1);
+        }
+
+        isBlinking = false;
     }
 }

@@ -94,7 +94,8 @@ public class CollisionBox : MonoBehaviour
         
         if (Physics.Raycast(transform.position - new Vector3(0, transform.localScale.y / 2, 0), directionC, out hit, maxDistance))
         {
-            if (hit.collider.gameObject != gameObject && hit.collider.gameObject.layer != LayerMask.NameToLayer("HitBoxes"))
+            if (hit.collider.gameObject != gameObject && hit.collider.gameObject.layer != LayerMask.NameToLayer("HitBoxes")
+                && hit.collider.gameObject.tag != "Player")
             {
                 float distance = Vector3.Distance(transform.position - new Vector3(0, transform.localScale.y / 2, 0), hit.point);
                 if (distance < maxDistance) maxDistance = distance;
@@ -181,6 +182,7 @@ public class CollisionBox : MonoBehaviour
             && other.collider == raycastHitCollider)
         {
             isGrounded = true;
+            player.knockbackInProgess = false;
             player.AfterLanding();
             player.audio.IsGround();
         }
@@ -191,6 +193,7 @@ public class CollisionBox : MonoBehaviour
         {
             isTouchingPlatform = true;
             isGrounded = true;
+            player.knockbackInProgess = false;
             player.AfterLanding();
             player.audio.IsGround();
         }
@@ -273,10 +276,10 @@ public class CollisionBox : MonoBehaviour
         else if (other.gameObject.tag == "PlatformF" && player.canFallPlatform) isFalling = true;
         else
         {
-            if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true);
+            if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true); 
         }
 
-        if (other.gameObject.tag == "Player" && !isGrounded) Physics.IgnoreCollision(meshCollider, other, true);
+        if (other.gameObject.tag == "Player" && (!isGrounded || player.knockbackInProgess)) Physics.IgnoreCollision(meshCollider, other, true);
         else if (other.gameObject.tag == "Player" && isGrounded) Physics.IgnoreCollision(meshCollider, other, false);
 
         // Exclusive for Break the targets
@@ -309,7 +312,7 @@ public class CollisionBox : MonoBehaviour
             if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true);
         }
 
-        if (other.gameObject.tag == "Player" && !isGrounded) Physics.IgnoreCollision(meshCollider, other, true);
+        if (other.gameObject.tag == "Player" && (!isGrounded || player.knockbackInProgess)) Physics.IgnoreCollision(meshCollider, other, true);
         else if (other.gameObject.tag == "Player" && isGrounded) Physics.IgnoreCollision(meshCollider, other, false);
     }
 

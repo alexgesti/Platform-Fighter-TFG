@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class MovementBasis : MonoBehaviour
 {
     public bool isSandBag;
+    public int playerID;
     [HideInInspector] public bool isFinished;
 
     [Header("Stick Controlls")]
@@ -75,17 +76,19 @@ public class MovementBasis : MonoBehaviour
 
     [Header("Crouch")]
     [HideInInspector] public bool isCrouching;
-    [HideInInspector] public bool isBusy;
+    public bool isBusy;
 
     [Header("Knockback")]
     public float dragBase;
-    [HideInInspector] public bool knockbackBool;
+    [HideInInspector] public bool knockbackInProgess;
+    bool forceApplied;
+    //[HideInInspector] public bool knockbackBool;
     [HideInInspector] public float launchSpeed, launchAngle, direction;
     float angleRadY, angleRadX;
     [HideInInspector] public int damage, percentage;
     Vector3 knockbackSpeed;
-    bool damagedOneTime;
-    [HideInInspector] public bool isHitted;
+    //bool damagedOneTime;
+    //[HideInInspector] public bool isHitted;
 
     [HideInInspector] public CollisionBox cb;
     [HideInInspector] public AudioPlayerController audio;
@@ -112,42 +115,62 @@ public class MovementBasis : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isFinished) Movement();
+        if (!isFinished)
+        {
+            if (knockbackInProgess)
+            {
+                Knockback();
+                return;
+            }
+
+            Movement();
+        }
     }
 
     // Input Readers
-    void HandleMove(Vector2 dir)
+    void HandleMove(Vector2 dir, int eventPlayerID)
     {
-        Axis = dir;
+        if (eventPlayerID == playerID) Axis = dir;
     }
 
-    void HandleJump()
+    void HandleJump(int eventPlayerID)
     {
-        if (cb.isGrounded && !isJumping)
+        if (eventPlayerID == playerID)
         {
-            isJumping = true;
+            if (!hit.isN && !hit.isF && !hit.isU && !hit.isD
+            && !hit.isFSmash && !hit.isUSmash && !hit.isDSmash && !isBusy)
+            {
+                if (cb.isGrounded && !isJumping)
+                {
+                    isJumping = true;
 
-            if (!hit.isD) hit.CancelAttackForFallAnim();
+                    if (!hit.isD && !hit.isDSmash) hit.CancelAttackForFallAnim();
+                }
+
+                if (canDJump) isDJumping = true;
+            }
         }
-
-        if (canDJump) isDJumping = true;
     }
 
-    void HandleCancelJump()
+    void HandleCancelJump(int eventPlayerID)
     {
-        isJumping = false;
-        isDJumping = false;
+        if (eventPlayerID == playerID)
+        {
+            isJumping = false;
+            isDJumping = false;
+        }
     }
 
     // Logic Movement
     void HorzitonalMovement()
     {
         if (cb.isGrounded && !isCrouching &&
-            !hit.isNAir) // Grounded
+            !hit.isNAir && !hit.isDAir && !hit.isFAir && !hit.isBAir && !hit.isUAir) // Grounded
         {
             if (Mathf.Abs(Axis.x) > joystickThresholdMin && !tractionBool
                 && Mathf.Abs(Axis.y) < joystickThresholdMin
-                && !hit.isF && !hit.isU && !hit.isD)
+                && !hit.isF && !hit.isU && !hit.isD
+                && !hit.isFSmash && !hit.isUSmash && !hit.isDSmash && !isBusy)
             {
                 if (!isRunning) framesHeld++;
 
@@ -238,6 +261,8 @@ public class MovementBasis : MonoBehaviour
             Axis.y <= -joystickThresholdMin && cb.isGrounded &&
             !tractionBool && !isDashing && speed == 0 &&
             !hit.isN && !hit.isF && !hit.isU && !hit.isNAir &&
+            !hit.isFAir && !hit.isBAir && !hit.isDAir && !hit.isUAir &&
+            !hit.isFSmash && !hit.isUSmash && !hit.isDSmash &&
             !isBusy)
         {
             isCrouching = true;
@@ -246,8 +271,7 @@ public class MovementBasis : MonoBehaviour
             isCrouching = false;
             //if (!hit.isD) isCrouching = false;
     }
-
-
+    
     void Jump()
     {
         if (!cb.isGrounded)
@@ -275,7 +299,8 @@ public class MovementBasis : MonoBehaviour
         }
         else if (canDJump)
         {
-            if (isDJumping && !djOneTime)
+            if (isDJumping && !djOneTime
+                && !hit.isNAir && !hit.isFAir && !hit.isBAir && !hit.isDAir && !hit.isUAir)
             {
                 verticalSpeed = 0;
                 gravity = 0;
@@ -288,7 +313,7 @@ public class MovementBasis : MonoBehaviour
 
                 audio.Jump();
 
-                if (hit.isNAir || hit.isFAir || hit.isDAir || hit.isUAir)
+                if (hit.isNAir || hit.isFAir || hit.isBAir || hit.isDAir || hit.isUAir)
                     hit.CancelAerialAttackAnim();
             }
         }
@@ -319,7 +344,8 @@ public class MovementBasis : MonoBehaviour
 
             if (!hit.canAir) hit.canAir = true;
 
-            if (hit.isF || hit.isU || hit.isD) hit.CancelAttackForFallAnim();
+            if (hit.isF || hit.isU || hit.isD || 
+                !hit.isFSmash || !hit.isUSmash || !hit.isDSmash) hit.CancelAttackForFallAnim();
         }
         else
         {
@@ -384,51 +410,104 @@ public class MovementBasis : MonoBehaviour
         }
     }
 
-    void Knockback() // ATENCION. Se ha procedido hacer el decremento por friccion y recalculo del knockback, pero ahora a veces funciona bien y otras veces no. Además parece que las hitboxes no son acordes del todo (???, esto se puede pasar un poco)
+    void Knockback()
     {
-        if (knockbackBool)
+        if (!forceApplied)
         {
             float launchAngleX = launchAngle;
 
             if (direction == -1) launchAngleX -= 180;
 
             angleRadY = launchAngle * Mathf.Deg2Rad;
-
             angleRadX = launchAngleX * Mathf.Deg2Rad;
 
-            if (!damagedOneTime)
-            {
-                percentage += damage;
+            percentage += damage;
+            if (percentage >= 999) percentage = 999;
 
-                if (percentage >= 999) percentage = 999;
+            GetComponent<DamagePlayer>().IsDamaged(percentage);
 
-                GetComponent<DamagePlayer>().IsDamaged(percentage);
+            float knockbackMagnitude = launchSpeed * Mathf.Clamp(percentage / 100f, 1.5f, 3f);
+            knockbackSpeed = new Vector3(Mathf.Cos(angleRadX) * knockbackMagnitude, Mathf.Sin(angleRadY) * knockbackMagnitude, 0);
 
-                damagedOneTime = true;
-            }
-
-            knockbackBool = false;
-
-            knockbackSpeed = new Vector3(Mathf.Cos(angleRadX) * launchSpeed * percentage, Mathf.Sin(angleRadY) * launchSpeed * percentage, 0);
+            forceApplied = true;
         }
-        else damagedOneTime = false;
 
-        //Vector3 launchForce = new Vector3(Mathf.Cos(angleRadX), Mathf.Sin(angleRadY), 0) * launchSpeed * weight * (percentage * 0.01f) * Time.deltaTime;
+        if (knockbackSpeed.y < 0)
+        {
+            gravity = 0;
+        }
 
-        Vector3 dragForce = dragBase * knockbackSpeed;
+        Gravity();
+        knockbackSpeed += new Vector3(0, -gravity, 0); // hacer la gravedad como cuando cae de la plataforma.
 
-        Vector3 gravityKnockback = new Vector3(1, 1, 0) * 9.81f;
+        knockbackSpeed *= dragBase;
 
-        knockbackSpeed = knockbackSpeed - (dragForce + gravityKnockback);
+        GetComponent<Rigidbody>().velocity = knockbackSpeed;
 
-        GetComponent<Rigidbody>().velocity = knockbackSpeed * 0.01f;
+        Debug.Log("g " + gravity);
 
-        Debug.Log(GetComponent<Rigidbody>().velocity);
+        float speedThreshold = 1f;
+        if (GetComponent<Rigidbody>().velocity.magnitude < speedThreshold && knockbackSpeed.y <= 0.1f)
+        {
+            GetComponent<Rigidbody>().velocity = Vector3.zero;
+            knockbackInProgess = false;
+            forceApplied = false;
+        }
 
-        if (GetComponent<Rigidbody>().velocity.y <= 1 && angleRadX > 0 ||
-            GetComponent<Rigidbody>().velocity.y >= -1 && angleRadX < 0) 
-            isHitted = false;
+        //Debug.Log(knockbackSpeed);
     }
+    /*    if (knockbackBool)
+    //    {
+    //        float launchAngleX = launchAngle;
+    //
+    //        if (direction == -1) launchAngleX -= 180;
+    //
+    //        angleRadY = launchAngle * Mathf.Deg2Rad;
+    //
+    //        angleRadX = launchAngleX * Mathf.Deg2Rad;
+    //
+    //        if (!damagedOneTime)
+    //        {
+    //            percentage += damage;
+    //
+    //            if (percentage >= 999) percentage = 999;
+    //
+    //            GetComponent<DamagePlayer>().IsDamaged(percentage);
+    //
+    //            damagedOneTime = true;
+    //        }
+    //
+    //        knockbackBool = false;
+    //
+    //        knockbackSpeed = new Vector3(Mathf.Cos(angleRadX) * launchSpeed * percentage, Mathf.Sin(angleRadY) * launchSpeed * percentage, 0);
+    //    }
+    //
+    //    Vector3 dragForce = dragBase * knockbackSpeed;
+    //    Vector3 gravityKnockback = new Vector3(1, 1, 0) * 9.81f;
+    //
+    //    knockbackSpeed = knockbackSpeed - (dragForce + gravityKnockback);
+    //
+    //    GetComponent<Rigidbody>().AddForce(knockbackSpeed * 0.1f, ForceMode.Impulse);
+    //
+    //    Debug.Log(GetComponent<Rigidbody>().velocity);
+    //
+    //    float knockbackDuration = (knockbackSpeed.magnitude * 0.1f) + 0.5f;
+    //   
+    //    if (knockbackDuration >= 10) knockbackDuration = 10;
+    //
+    //    StartCoroutine(DisableMovementForKnockback(knockbackDuration));
+    }
+
+    //IEnumerator DisableMovementForKnockback(float duration)
+    //{
+    //    yield return new WaitForSeconds(duration);
+    //
+    //    damagedOneTime = false;
+    //    isHitted = false;
+    //
+    //    knockbackSpeed = Vector3.zero;
+    }
+    */
 
     public void ResetJump()
     {
@@ -477,10 +556,13 @@ public class MovementBasis : MonoBehaviour
     {
         if (!hit.isN) HorzitonalMovement();
         Crouch();
-        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD) Jump();
+        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD
+            && !hit.isFSmash && !hit.isUSmash && !hit.isDSmash) Jump();
         if (!hit.isN) Gravity();
-        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD) FallPlatform();
-        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD) FastFall();
+        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD
+            && !hit.isFSmash && !hit.isUSmash && !hit.isDSmash) FallPlatform();
+        if (!hit.isN && !hit.isF && !hit.isU && !hit.isD
+            && !hit.isFSmash && !hit.isUSmash && !hit.isDSmash) FastFall();
 
         verticalSpeed = sTop - gravity;
 
@@ -528,9 +610,24 @@ public class MovementBasis : MonoBehaviour
             finalspeed = Axis.x * speed;
         }
 
-        if (isTouchingWall) finalspeed = 0;
+        if (isTouchingWall && !knockbackInProgess) finalspeed = 0;
+        // De momento no se toca esto.
+        //else if (isTouchingWall && isHitted) GetComponent<Rigidbody>().AddForce(new Vector3(-1 * GetComponent<Rigidbody>().velocity.x, 0, 0), ForceMode.VelocityChange);
 
-        if (!isHitted) GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
-        else Knockback();
+        GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
+
+        //if (isHitted)
+        //{
+        //    Knockback();
+        //
+        //    if (cb.isGrounded)
+        //    {
+        //        //damagedOneTime = false;
+        //        isHitted = false;
+        //
+        //        knockbackSpeed = Vector3.zero;
+        //        GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+        //    }
+        //}
     }
 }
