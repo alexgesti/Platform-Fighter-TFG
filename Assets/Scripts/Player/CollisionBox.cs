@@ -314,6 +314,11 @@ public class CollisionBox : MonoBehaviour
 
         if (other.gameObject.tag == "Player" && (!isGrounded || player.knockbackInProgess)) Physics.IgnoreCollision(meshCollider, other, true);
         else if (other.gameObject.tag == "Player" && isGrounded) Physics.IgnoreCollision(meshCollider, other, false);
+    
+        //if (other.gameObject.tag == "Wall" && player.knockbackInProgess)
+        //{
+        //    player.knockbackSpeed.x = -player.knockbackSpeed.x * 0.7f;
+        //}
     }
 
     private void OnTriggerExit(Collider other)

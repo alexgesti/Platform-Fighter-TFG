@@ -280,6 +280,7 @@ public class HitBoxesController : MonoBehaviour
         isFSmash = false;
         isDSmash = false;
         isUSmash = false;
+        player.isBusy = false;
     }
 
     public void CancelAttackForFallAnim()
@@ -361,11 +362,6 @@ public class HitBoxesController : MonoBehaviour
 
                 if (state != null && !stateProcessed)
                 {
-                    //if (!enemyState.isHitted)
-                    //{
-
-                    //enemyState.knockbackBool = true;
-                    //enemyState.isHitted = true;
                     stateProcessed = true;
 
                     enemyState.launchSpeed = state.GetComponent<HitBoxesState>().launchSpeed + ((framesMaxCharge / 10) * 2);

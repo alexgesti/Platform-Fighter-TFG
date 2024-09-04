@@ -82,13 +82,10 @@ public class MovementBasis : MonoBehaviour
     public float dragBase;
     [HideInInspector] public bool knockbackInProgess;
     bool forceApplied;
-    //[HideInInspector] public bool knockbackBool;
     [HideInInspector] public float launchSpeed, launchAngle, direction;
     float angleRadY, angleRadX;
     [HideInInspector] public int damage, percentage;
-    Vector3 knockbackSpeed;
-    //bool damagedOneTime;
-    //[HideInInspector] public bool isHitted;
+    [HideInInspector] public Vector3 knockbackSpeed;
 
     [HideInInspector] public CollisionBox cb;
     [HideInInspector] public AudioPlayerController audio;
@@ -426,7 +423,7 @@ public class MovementBasis : MonoBehaviour
 
             GetComponent<DamagePlayer>().IsDamaged(percentage);
 
-            float knockbackMagnitude = launchSpeed * Mathf.Clamp(percentage / 100f, 1.5f, 3f);
+            float knockbackMagnitude = launchSpeed * Mathf.Clamp(percentage / 10f, 1.5f, 3f);
             knockbackSpeed = new Vector3(Mathf.Cos(angleRadX) * knockbackMagnitude, Mathf.Sin(angleRadY) * knockbackMagnitude, 0);
 
             forceApplied = true;
@@ -437,25 +434,42 @@ public class MovementBasis : MonoBehaviour
             gravity = 0;
         }
 
-        Gravity();
-        knockbackSpeed += new Vector3(0, -gravity, 0); // hacer la gravedad como cuando cae de la plataforma.
-
-        knockbackSpeed *= dragBase;
+        if (!cb.isGrounded)
+        {
+            gravity += weight * 9.81f * Time.deltaTime;
+            knockbackSpeed += new Vector3(0, -gravity, 0);
+            knockbackSpeed *= dragBase;
+        }
+        else
+        {
+            if (knockbackSpeed.magnitude < 5f)
+            {
+                knockbackSpeed.x = 0; // Stop horizontal drag
+            }
+            else
+            {
+                knockbackSpeed.y = Mathf.Abs(knockbackSpeed.y * 0.1f); // Bounce with half the force
+            }
+        }
 
         GetComponent<Rigidbody>().velocity = knockbackSpeed;
 
-        Debug.Log("g " + gravity);
+        float knockbackDuration = (knockbackSpeed.magnitude * 0.1f) + 0.5f;
 
-        float speedThreshold = 1f;
-        if (GetComponent<Rigidbody>().velocity.magnitude < speedThreshold && knockbackSpeed.y <= 0.1f)
-        {
-            GetComponent<Rigidbody>().velocity = Vector3.zero;
-            knockbackInProgess = false;
-            forceApplied = false;
-        }
+        if (knockbackDuration >= 10) knockbackDuration = 10;
 
-        //Debug.Log(knockbackSpeed);
+        StartCoroutine(DisableMovementForKnockback(knockbackDuration));
     }
+
+    IEnumerator DisableMovementForKnockback(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        GetComponent<Rigidbody>().velocity = Vector3.zero;
+        knockbackInProgess = false;
+        forceApplied = false;
+    }
+
     /*    if (knockbackBool)
     //    {
     //        float launchAngleX = launchAngle;
@@ -607,7 +621,7 @@ public class MovementBasis : MonoBehaviour
         }
         else if (!cb.isGrounded)
         {
-            finalspeed = Axis.x * speed;
+            finalspeed = Axis.x * speed * 0.8f;
         }
 
         if (isTouchingWall && !knockbackInProgess) finalspeed = 0;
@@ -615,19 +629,5 @@ public class MovementBasis : MonoBehaviour
         //else if (isTouchingWall && isHitted) GetComponent<Rigidbody>().AddForce(new Vector3(-1 * GetComponent<Rigidbody>().velocity.x, 0, 0), ForceMode.VelocityChange);
 
         GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
-
-        //if (isHitted)
-        //{
-        //    Knockback();
-        //
-        //    if (cb.isGrounded)
-        //    {
-        //        //damagedOneTime = false;
-        //        isHitted = false;
-        //
-        //        knockbackSpeed = Vector3.zero;
-        //        GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
-        //    }
-        //}
     }
 }
