@@ -80,8 +80,7 @@ public class MovementBasis : MonoBehaviour
 
     [Header("Knockback")]
     public float dragBase;
-    [HideInInspector] public bool knockbackInProgess;
-    bool forceApplied;
+    [HideInInspector] public bool isHitted, knockbackBool, damagedOneTime;
     [HideInInspector] public float launchSpeed, launchAngle, direction;
     float angleRadY, angleRadX;
     [HideInInspector] public int damage, percentage;
@@ -113,15 +112,7 @@ public class MovementBasis : MonoBehaviour
     void Update()
     {
         if (!isFinished)
-        {
-            if (knockbackInProgess)
-            {
-                Knockback();
-                return;
-            }
-
             Movement();
-        }
     }
 
     // Input Readers
@@ -409,119 +400,56 @@ public class MovementBasis : MonoBehaviour
 
     void Knockback()
     {
-        if (!forceApplied)
+        if (knockbackBool)
         {
             float launchAngleX = launchAngle;
-
+    
             if (direction == -1) launchAngleX -= 180;
-
+    
             angleRadY = launchAngle * Mathf.Deg2Rad;
+    
             angleRadX = launchAngleX * Mathf.Deg2Rad;
-
-            percentage += damage;
-            if (percentage >= 999) percentage = 999;
-
-            GetComponent<DamagePlayer>().IsDamaged(percentage);
-
-            float knockbackMagnitude = launchSpeed * Mathf.Clamp(percentage / 10f, 1.5f, 3f);
-            knockbackSpeed = new Vector3(Mathf.Cos(angleRadX) * knockbackMagnitude, Mathf.Sin(angleRadY) * knockbackMagnitude, 0);
-
-            forceApplied = true;
-        }
-
-        if (knockbackSpeed.y < 0)
-        {
-            gravity = 0;
-        }
-
-        if (!cb.isGrounded)
-        {
-            gravity += weight * 9.81f * Time.deltaTime;
-            knockbackSpeed += new Vector3(0, -gravity, 0);
-            knockbackSpeed *= dragBase;
-        }
-        else
-        {
-            if (knockbackSpeed.magnitude < 5f)
+    
+            if (!damagedOneTime)
             {
-                knockbackSpeed.x = 0; // Stop horizontal drag
+                percentage += damage;
+    
+                if (percentage >= 999) percentage = 999;
+    
+                GetComponent<DamagePlayer>().IsDamaged(percentage);
+    
+                damagedOneTime = true;
             }
-            else
-            {
-                knockbackSpeed.y = Mathf.Abs(knockbackSpeed.y * 0.1f); // Bounce with half the force
-            }
+    
+            knockbackBool = false;
+    
+            knockbackSpeed = new Vector3(Mathf.Cos(angleRadX) * launchSpeed * percentage, Mathf.Sin(angleRadY) * launchSpeed * percentage, 0);
         }
-
-        GetComponent<Rigidbody>().velocity = knockbackSpeed;
-
+    
+        Vector3 dragForce = dragBase * knockbackSpeed;
+        Vector3 gravityKnockback = new Vector3(1, 1, 0) * 9.81f;
+    
+        knockbackSpeed = knockbackSpeed - (dragForce + gravityKnockback);
+    
+        GetComponent<Rigidbody>().AddForce(knockbackSpeed * 0.1f, ForceMode.Impulse);
+    
+        Debug.Log(GetComponent<Rigidbody>().velocity);
+    
         float knockbackDuration = (knockbackSpeed.magnitude * 0.1f) + 0.5f;
-
-        if (knockbackDuration >= 10) knockbackDuration = 10;
-
+       
+        if (knockbackDuration >= 5) knockbackDuration = 5;
+    
         StartCoroutine(DisableMovementForKnockback(knockbackDuration));
     }
 
     IEnumerator DisableMovementForKnockback(float duration)
     {
         yield return new WaitForSeconds(duration);
-
-        GetComponent<Rigidbody>().velocity = Vector3.zero;
-        knockbackInProgess = false;
-        forceApplied = false;
+    
+        damagedOneTime = false;
+        isHitted = false;
+        knockbackSpeed = Vector3.zero;
     }
-
-    /*    if (knockbackBool)
-    //    {
-    //        float launchAngleX = launchAngle;
-    //
-    //        if (direction == -1) launchAngleX -= 180;
-    //
-    //        angleRadY = launchAngle * Mathf.Deg2Rad;
-    //
-    //        angleRadX = launchAngleX * Mathf.Deg2Rad;
-    //
-    //        if (!damagedOneTime)
-    //        {
-    //            percentage += damage;
-    //
-    //            if (percentage >= 999) percentage = 999;
-    //
-    //            GetComponent<DamagePlayer>().IsDamaged(percentage);
-    //
-    //            damagedOneTime = true;
-    //        }
-    //
-    //        knockbackBool = false;
-    //
-    //        knockbackSpeed = new Vector3(Mathf.Cos(angleRadX) * launchSpeed * percentage, Mathf.Sin(angleRadY) * launchSpeed * percentage, 0);
-    //    }
-    //
-    //    Vector3 dragForce = dragBase * knockbackSpeed;
-    //    Vector3 gravityKnockback = new Vector3(1, 1, 0) * 9.81f;
-    //
-    //    knockbackSpeed = knockbackSpeed - (dragForce + gravityKnockback);
-    //
-    //    GetComponent<Rigidbody>().AddForce(knockbackSpeed * 0.1f, ForceMode.Impulse);
-    //
-    //    Debug.Log(GetComponent<Rigidbody>().velocity);
-    //
-    //    float knockbackDuration = (knockbackSpeed.magnitude * 0.1f) + 0.5f;
-    //   
-    //    if (knockbackDuration >= 10) knockbackDuration = 10;
-    //
-    //    StartCoroutine(DisableMovementForKnockback(knockbackDuration));
-    }
-
-    //IEnumerator DisableMovementForKnockback(float duration)
-    //{
-    //    yield return new WaitForSeconds(duration);
-    //
-    //    damagedOneTime = false;
-    //    isHitted = false;
-    //
-    //    knockbackSpeed = Vector3.zero;
-    }
-    */
 
     public void ResetJump()
     {
@@ -580,8 +508,8 @@ public class MovementBasis : MonoBehaviour
 
         verticalSpeed = sTop - gravity;
 
-        if (verticalSpeed <= -maxGravity && !isFastFall) verticalSpeed = - maxGravity;
-        else if (isFastFall && !cb.isGrounded) verticalSpeed = - maxGravity - 5;
+        if (verticalSpeed <= -maxGravity && !isFastFall) verticalSpeed = -maxGravity;
+        else if (isFastFall && !cb.isGrounded) verticalSpeed = -maxGravity - 5;
 
         //if (cb.isGrounded && isFastFall && !cb.isTouchingPlatform)
         //{
@@ -624,10 +552,23 @@ public class MovementBasis : MonoBehaviour
             finalspeed = Axis.x * speed * 0.8f;
         }
 
-        if (isTouchingWall && !knockbackInProgess) finalspeed = 0;
+        if (isTouchingWall && !isHitted) finalspeed = 0;
         // De momento no se toca esto.
         //else if (isTouchingWall && isHitted) GetComponent<Rigidbody>().AddForce(new Vector3(-1 * GetComponent<Rigidbody>().velocity.x, 0, 0), ForceMode.VelocityChange);
 
         GetComponent<Rigidbody>().velocity = new Vector3(finalspeed + platforMoving, verticalSpeed, 0);
+
+        if (isHitted)
+        {
+            Knockback();
+
+            if (cb.isGrounded)
+            {
+                isHitted = false;
+
+                knockbackSpeed = Vector3.zero;
+                GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+            }
+        }
     }
 }

@@ -182,7 +182,12 @@ public class CollisionBox : MonoBehaviour
             && other.collider == raycastHitCollider)
         {
             isGrounded = true;
-            player.knockbackInProgess = false;
+            if (player.isHitted)
+            {
+                player.damagedOneTime = false;
+                player.isHitted = false;
+                player.knockbackSpeed = Vector3.zero;
+            }
             player.AfterLanding();
             player.audio.IsGround();
         }
@@ -193,7 +198,12 @@ public class CollisionBox : MonoBehaviour
         {
             isTouchingPlatform = true;
             isGrounded = true;
-            player.knockbackInProgess = false;
+            if (player.isHitted)
+            {
+                player.damagedOneTime = false;
+                player.isHitted = false;
+                player.knockbackSpeed = Vector3.zero;
+            }
             player.AfterLanding();
             player.audio.IsGround();
         }
@@ -279,7 +289,7 @@ public class CollisionBox : MonoBehaviour
             if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true); 
         }
 
-        if (other.gameObject.tag == "Player" && (!isGrounded || player.knockbackInProgess)) Physics.IgnoreCollision(meshCollider, other, true);
+        if (other.gameObject.tag == "Player" && (!isGrounded || player.isHitted)) Physics.IgnoreCollision(meshCollider, other, true);
         else if (other.gameObject.tag == "Player" && isGrounded) Physics.IgnoreCollision(meshCollider, other, false);
 
         // Exclusive for Break the targets
@@ -312,7 +322,7 @@ public class CollisionBox : MonoBehaviour
             if (other.gameObject.tag == "PlatformF") Physics.IgnoreCollision(meshCollider, other, true);
         }
 
-        if (other.gameObject.tag == "Player" && (!isGrounded || player.knockbackInProgess)) Physics.IgnoreCollision(meshCollider, other, true);
+        if (other.gameObject.tag == "Player" && (!isGrounded || player.isHitted)) Physics.IgnoreCollision(meshCollider, other, true);
         else if (other.gameObject.tag == "Player" && isGrounded) Physics.IgnoreCollision(meshCollider, other, false);
     
         //if (other.gameObject.tag == "Wall" && player.knockbackInProgess)

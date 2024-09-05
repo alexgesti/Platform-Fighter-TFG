@@ -339,8 +339,6 @@ public class HitBoxesController : MonoBehaviour
 
     void SaveEnemyBox()
     {
-        bool stateProcessed = false;
-
         foreach (BoxCollider state in hitBoxes)
         {
             if (state.GetComponent<HitBoxesState>().enemyCollider != null)
@@ -360,16 +358,18 @@ public class HitBoxesController : MonoBehaviour
                     enemyParent = enemyParent.parent;
                 }
 
-                if (state != null && !stateProcessed)
+                if (state != null)
                 {
-                    stateProcessed = true;
-
-                    enemyState.launchSpeed = state.GetComponent<HitBoxesState>().launchSpeed + ((framesMaxCharge / 10) * 2);
-                    enemyState.launchAngle = state.GetComponent<HitBoxesState>().launchAngle;
-                    enemyState.damage = state.GetComponent<HitBoxesState>().damage + (((int)framesMaxCharge / 10) * 2);
-                    enemyState.knockbackInProgess = true;
-                    if (transform.eulerAngles.y < 180) enemyState.direction = 1;
-                    else enemyState.direction = -1;
+                    if (!enemyState.isHitted)
+                    {
+                        enemyState.launchSpeed = state.GetComponent<HitBoxesState>().launchSpeed + ((framesMaxCharge / 10) * 2);
+                        enemyState.launchAngle = state.GetComponent<HitBoxesState>().launchAngle;
+                        enemyState.damage = state.GetComponent<HitBoxesState>().damage + (((int)framesMaxCharge / 10) * 2);
+                        enemyState.isHitted = true;
+                        enemyState.knockbackBool = true;
+                        if (transform.eulerAngles.y < 180) enemyState.direction = 1;
+                        else enemyState.direction = -1;
+                    }
                 }
             }
         }

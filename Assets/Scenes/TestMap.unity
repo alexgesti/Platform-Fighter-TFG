@@ -16367,7 +16367,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1872753145760254373, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
       propertyPath: dragBase
-      value: 0.94
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 4971402394989263818, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
       propertyPath: m_Interpolate
@@ -21056,7 +21056,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2037922590426978553, guid: dde1228deb8224048a462a141233a73f, type: 3}
       propertyPath: dragBase
-      value: 0.98
+      value: 0.95
       objectReference: {fileID: 0}
     - target: {fileID: 2714789696852765629, guid: dde1228deb8224048a462a141233a73f, type: 3}
       propertyPath: m_IsActive
@@ -21157,7 +21157,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1872753145760254373, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
       propertyPath: dragBase
-      value: 0.94
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 1872753145760254373, guid: e0e17425b06ae7d4ca40ee32d302b97a, type: 3}
       propertyPath: playerID
