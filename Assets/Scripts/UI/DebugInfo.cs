@@ -178,8 +178,8 @@ public class DebugInfo : MonoBehaviour
                 }
             }
         }
-        // No player (With HitBoxes) Tab
-        if (Input.GetKeyDown(KeyCode.Tab) && boolCollBox)
+        // No player (With HitBoxes) Ctrl
+        if (Input.GetKeyDown(KeyCode.LeftControl) && boolCollBox)
         {
             boolModel = !boolModel;
 

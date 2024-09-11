@@ -58,13 +58,13 @@ public class Char1HitBoxes : MonoBehaviour
 
             if (hit.name == "A_R_1_Box")
             {
-                if (i == 1) //Control + Z
+                if (i == 1) 
                 {
                     hit.GetComponent<HitBoxesState>().DamageAction();
                     hit.GetComponent<HitBoxesState>().scale = new Vector3(0.1f, 0.1f, 0.1f);
-                    hit.GetComponent<HitBoxesState>().launchAngle = 54;
-                    hit.GetComponent<HitBoxesState>().launchSpeed = 100;
-                    hit.GetComponent<HitBoxesState>().damage = 100;
+                    hit.GetComponent<HitBoxesState>().launchAngle = 2;
+                    hit.GetComponent<HitBoxesState>().launchSpeed = 1;
+                    hit.GetComponent<HitBoxesState>().damage = 2;
                 }
                 else if (i == 0)
                 {
