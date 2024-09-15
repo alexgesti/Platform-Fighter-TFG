@@ -246,6 +246,8 @@ public class DebugInfo : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F7)) SceneManager.LoadScene(1);
 
+        if (Input.GetKeyDown(KeyCode.F8)) SceneManager.LoadScene(2);
+
         // Exit
         if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
     }

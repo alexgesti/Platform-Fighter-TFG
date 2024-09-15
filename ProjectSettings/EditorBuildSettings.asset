@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TestMap 2.unity
     guid: aa35cb266bcadd242aa8ce0f20895270
+  - enabled: 1
+    path: Assets/Scenes/BreakTheTargetsTest.unity
+    guid: e1c27ef8224d92f42b5d1dd2c454f6d6
   m_configObjects: {}
