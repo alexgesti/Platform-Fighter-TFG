@@ -72,23 +72,43 @@ public class HitBoxesState : MonoBehaviour
         Collider[] hitColliders = Physics.OverlapBox(box.transform.TransformPoint(box.center), 
             box.size / 2, box.transform.rotation, LayerMask.GetMask("HitBoxes"));
 
-        bool noCollisions = true;
+        // Test
+        bool collisionFound = false;
 
         foreach (BoxCollider hitCollider in hitColliders)
         {
-            if (hitCollider != box && hitCollider.GetComponent<HitBoxesState>().father != father)
+            HitBoxesState hitBoxState = hitCollider.GetComponent<HitBoxesState>();
+
+            if (hitCollider != box && hitBoxState.father != father)
             {
-                if (indexState == 1 && hitCollider.GetComponent<HitBoxesState>().indexState == 0)
+                if (indexState == 1 && hitBoxState.indexState == 0)
                 {
-                    noCollisions = false;
                     enemyCollider = hitCollider;
+                    collisionFound = true;
+                    break;
                 }
             }
         }
 
-        if (noCollisions && enemyCollider != null)
-        {
-            enemyCollider = null;
-        }
+        if (!collisionFound) enemyCollider = null;
+
+        //bool noCollisions = true;
+
+        //foreach (BoxCollider hitCollider in hitColliders)
+        //{
+        //    if (hitCollider != box && hitCollider.GetComponent<HitBoxesState>().father != father)
+        //    {
+        //        if (indexState == 1 && hitCollider.GetComponent<HitBoxesState>().indexState == 0)
+        //        {
+        //            noCollisions = false;
+        //            enemyCollider = hitCollider;
+        //        }
+        //    }
+        //}
+        //
+        //if (noCollisions && enemyCollider != null)
+        //{
+        //    enemyCollider = null;
+        //}
     }
 }

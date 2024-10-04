@@ -84,7 +84,7 @@ public class HitBoxesController : MonoBehaviour
 
     void HandleAttackStart(int eventPlayerID)
     {
-        if (eventPlayerID == player.playerID)
+        if (eventPlayerID == player.playerID && player != null)
         {
             if (player.cb.isGrounded &&
                 !player.isJumping)
@@ -108,26 +108,29 @@ public class HitBoxesController : MonoBehaviour
                             isN3 = true;
                     }
 
-                    if (!isN && !isU && !isD)
+                    if (!canSmash)
                     {
-                        if (GetComponentInParent<Rigidbody>().velocity.x != 0 &&
-                            GetComponentInParent<Rigidbody>().velocity.y == 0 &&
-                            player.Axis.y < player.joystickThresholdMin &&
-                            player.Axis.y > -player.joystickThresholdMin)
-                            isF = true;
-                    }
+                        if (!isN && !isU && !isD)
+                        {
+                            if (GetComponentInParent<Rigidbody>().velocity.x != 0 &&
+                                GetComponentInParent<Rigidbody>().velocity.y == 0 &&
+                                player.Axis.y < player.joystickThresholdMin &&
+                                player.Axis.y > -player.joystickThresholdMin)
+                                isF = true;
+                        }
 
-                    if (!isN && !isF && !isD)
-                    {
-                        if (GetComponentInParent<Rigidbody>().velocity.y == 0 &&
-                            player.Axis.y >= player.joystickThresholdMin)
-                            isU = true;
-                    }
+                        if (!isN && !isF && !isD)
+                        {
+                            if (GetComponentInParent<Rigidbody>().velocity.y == 0 &&
+                                player.Axis.y >= player.joystickThresholdMin)
+                                isU = true;
+                        }
 
-                    if (!isN && !isF && !isU)
-                    {
-                        if (player.isCrouching)
-                            isD = true;
+                        if (!isN && !isF && !isU)
+                        {
+                            if (player.isCrouching)
+                                isD = true;
+                        }
                     }
                 }
 

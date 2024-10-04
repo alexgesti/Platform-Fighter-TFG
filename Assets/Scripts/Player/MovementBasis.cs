@@ -112,7 +112,9 @@ public class MovementBasis : MonoBehaviour
     void Update()
     {
         if (!isFinished)
+        {
             Movement();
+        }
     }
 
     // Input Readers
@@ -561,11 +563,11 @@ public class MovementBasis : MonoBehaviour
         if (isHitted)
         {
             Knockback();
-
+        
             if (cb.isGrounded)
             {
                 isHitted = false;
-
+        
                 knockbackSpeed = Vector3.zero;
                 GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
             }
