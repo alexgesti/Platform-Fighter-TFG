@@ -41,4 +41,3 @@ MIT License
 - [Enlace de licencia MIT para consultar más detalles al respecto.](https://opensource.org/licenses/MIT)
 
 ***
-Ir [Arriba](https://github.com/alexgesti/PROYECTO-2](https://github.com/alexgesti/Platform-Fighter-TFG))
